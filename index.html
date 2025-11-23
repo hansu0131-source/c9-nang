@@ -16,14 +16,13 @@ body {
     margin: 0;
 }
 
-/* === 컨테이너: 900px 제한 제거 === */
+/* 컨테이너 */
 .wrap {
-    width: 100%;
+    width: fit-content;          /* ⭐ 폭 고정 제거 + 내용 기반 너비 */
     margin: 0 auto;
-    overflow: visible;
 }
 
-/* === 제목 === */
+/* 제목 */
 h1 {
     text-align: center;
     font-size: 22px;
@@ -32,65 +31,62 @@ h1 {
     color: #FF8FB2;
 }
 
-/* === 테이블 === */
+/* 테이블 */
 .table {
     display: flex;
     flex-direction: column;
     gap: 10px;
 }
 
+/* 행 */
 .row {
     display: grid;
-    grid-template-columns: repeat(7, 1fr); /* 🔥 비율 기반 */
+    grid-template-columns:
+        minmax(80px, auto)  /* 아이디 */
+        minmax(80px, auto)  /* 닉네임 */
+        minmax(55px, auto)  /* 갯수 */
+        minmax(55px, auto)  /* 원플원 */
+        minmax(80px, auto)  /* 공약 */
+        minmax(55px, auto)  /* 역팬 */
+        minmax(60px, auto); /* 비고 */
+
     background: white;
     border-radius: 26px;
     padding: 4px 0;
     overflow: hidden;
     box-shadow: 0 2px 8px rgba(255,150,180,0.10);
-    width: 100%; /* 🔥 화면 너비에 맞춤 */
 }
 
-/* === 셀 === */
+/* 셀 */
 .cell {
-    padding: 6px 10px;     /* 세로 간격 축소 */
+    padding: 8px 12px;
     font-size: 14px;
-
     display: flex;
     justify-content: center;
     align-items: center;
-
-    white-space: normal;
-    word-break: break-word;
-
-    min-width: 50px;
-    max-width: 240px;
-
+    white-space: nowrap;
+    min-width: 40px;
     border-right: 1px solid #FFE1EF;
     outline: none;
-    cursor: text;
 }
 
 .cell:last-child {
     border-right: none;
 }
 
-/* === 헤더 === */
-.header {
-    background: #FFE8F4;
-}
-
+/* 헤더 */
 .header .cell {
     font-weight: 700;
+    background: #FFE8F4;
     color: #D55382;
     border-bottom: 2px solid #F5BAD2;
     contenteditable: false;
-    cursor: default;
 }
 
-/* 모바일 살짝 축소 */
+/* 모바일에서 자동 축소 */
 @media (max-width: 600px) {
     .wrap {
-        transform: scale(0.95);
+        transform: scale(0.82);
         transform-origin: top center;
     }
 }
@@ -114,14 +110,13 @@ h1 {
         <div class="cell">비고</div>
     </div>
 
-    <!-- 샘플 데이터 -->
     <div class="row data">
         <div class="cell" contenteditable="true">danggun</div>
         <div class="cell" contenteditable="true">당군</div>
-        <div class="cell" contenteditable="true">30000</div>
+        <div class="cell amount" contenteditable="true">30000</div>
         <div class="cell" contenteditable="true">1</div>
         <div class="cell" contenteditable="true">출석</div>
-        <div class="cell" contenteditable="true">900</div>
+        <div class="cell ygp" contenteditable="true"></div>
         <div class="cell" contenteditable="true">VIP</div>
     </div>
 
@@ -130,17 +125,27 @@ h1 {
 </div>
 
 <script>
-
-/* === 배경을 누르면 키보드 닫히게 === */
+/* === 클릭하면 셀 포커스, 배경 누르면 키보드 닫기 === */
 document.addEventListener("click", (e) => {
     const isCell = e.target.closest(".cell");
-    if (!isCell) {
-        if (document.activeElement && document.activeElement.classList.contains("cell")) {
-            document.activeElement.blur();
-        }
+    if (!isCell && document.activeElement.classList.contains("cell")) {
+        document.activeElement.blur();
     }
 });
 
+/* === 3% 역팬 + 색상 === */
+function applyStyle(row){
+    const amt = row.querySelector(".amount");
+    const ygp = row.querySelector(".ygp");
+    if(!amt || !ygp) return;
+
+    const num = parseInt(amt.innerText.replace(/[^0-9]/g,'')) || 0;
+    ygp.innerText = num > 0 ? Math.round(num * 0.03) : "";
+}
+document.addEventListener("input", e=>{
+    const row = e.target.closest(".row.data");
+    if(row) applyStyle(row);
+});
 </script>
 
 </body>
