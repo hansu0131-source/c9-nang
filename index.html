@@ -39,15 +39,15 @@ h1 {
     gap: 10px;
 }
 
-/* === 행 (카드형 + 더 둥글게) === */
 .row {
     display: grid;
-    grid-template-columns: repeat(7, minmax(min-content, max-content));
+    grid-template-columns: repeat(7, 1fr); /* 🔥 비율 기반 */
     background: white;
-    border-radius: 26px;   /* 더 둥글게 */
-    padding: 4px 0;        /* 세로 공간 축소 */
-    overflow: visible;
+    border-radius: 26px;
+    padding: 4px 0;
+    overflow: hidden;
     box-shadow: 0 2px 8px rgba(255,150,180,0.10);
+    width: 100%; /* 🔥 화면 너비에 맞춤 */
 }
 
 /* === 셀 === */
