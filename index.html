@@ -19,6 +19,7 @@ body {
 
 .wrap {
     width: 100%;
+    max-width: 900px;
     margin: 0 auto;
 }
 
@@ -27,8 +28,31 @@ h1 {
     text-align: center;
     font-size: 22px;
     font-weight: 800;
-    margin-bottom: 20px;
+    margin-bottom: 12px;
     color: #FF8FB2;
+}
+
+/* ===== 상단 검색바 ===== */
+.filter-bar {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 16px;
+    font-size: 13px;
+}
+
+.filter-bar input {
+    flex: 1;
+    max-width: 260px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    border: 1px solid #ffd6ea;
+    background: #FFF9FD;
+    outline: none;
+}
+.filter-bar input:focus {
+    border-color: #ff9fc7;
+    box-shadow: 0 0 0 2px rgba(255,159,199,0.25);
 }
 
 /* ===== 스크롤 ===== */
@@ -37,12 +61,12 @@ h1 {
     padding-bottom: 6px;
 }
 
-/* ===== 테이블(행 묶음) ===== */
+/* ===== 테이블 (행 묶음) ===== */
 .table {
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    min-width: 720px; /* 새 열 추가로 최소폭 증가 */
+    gap: 8px;
+    min-width: 760px; /* 제어 열까지 포함한 최소 폭 */
 }
 
 /* ===== 행 ===== */
@@ -84,10 +108,19 @@ h1 {
     cursor: default;
 }
 
-/* ===== 버튼 영역 (행 마지막 칸) ===== */
+/* 갯수 정렬 버튼 표시용 */
+.sort-btn {
+    cursor: pointer;
+}
+.sort-btn span {
+    font-size: 11px;
+    margin-left: 4px;
+}
+
+/* ===== 행 제어 칸 ===== */
 .action-cell {
     position: relative;
-    width: 60px;
+    width: 70px;
     cursor: default;
     border-right: none;
 }
@@ -102,20 +135,27 @@ h1 {
     transform: translateY(-50%);
 }
 
-/* 버튼 스타일 (B형 아이콘 스타일) */
+/* 버튼 스타일 (핑크 아이콘 스타일) */
 .action-buttons button {
     background: #FFD8EA;
     border: none;
-    border-radius: 10px;
-    padding: 6px 10px;
+    border-radius: 999px;
+    padding: 4px 8px;
     font-size: 12px;
     cursor: pointer;
     color: #D24E78;
 }
 
-/* 행 클릭 시 표시 */
+/* 행 선택 시 버튼 표시 */
 .row.show-actions .action-buttons {
     display: flex;
+}
+
+/* ===== 합계 행 ===== */
+.summary-row {
+    background: #FFF9FD;
+    font-weight: 700;
+    color: #cc507a;
 }
 
 /* ===== 색상 팔레트(연한핑크) ===== */
@@ -137,48 +177,69 @@ h1 {
 <body>
 <div class="wrap">
 
-<h1>🐰 C9 1회차 낭플단</h1>
+    <h1>🐰 C9 1회차 낭플단</h1>
 
-<div class="table-scroll">
-    <div class="table" id="table">
+    <!-- 검색바 -->
+    <div class="filter-bar">
+        <input id="search" type="text" placeholder="아이디 / 닉네임 검색">
+    </div>
 
-        <!-- 헤더 -->
-        <div class="row header">
-            <div class="cell">아이디</div>
-            <div class="cell">닉네임</div>
-            <div class="cell sort-btn" data-sort="amount">갯수 ⬍</div>
-            <div class="cell">원플원</div>
-            <div class="cell">공약</div>
-            <div class="cell">역팬</div>
-            <div class="cell">비고</div>
-            <div class="cell action-cell"></div>
-        </div>
+    <div class="table-scroll">
+        <div class="table" id="table">
 
-        <!-- 예시 데이터 -->
-        <div class="row data-row">
-            <div class="cell" contenteditable="true">danggun</div>
-            <div class="cell" contenteditable="true">당군</div>
-            <div class="cell amount-cell" contenteditable="true">30000</div>
-            <div class="cell" contenteditable="true">1</div>
-            <div class="cell" contenteditable="true">출석</div>
-            <div class="cell ygp-cell" contenteditable="false"></div>
-            <div class="cell" contenteditable="true">VIP</div>
+            <!-- 헤더 -->
+            <div class="row header">
+                <div class="cell">아이디</div>
+                <div class="cell">닉네임</div>
+                <div class="cell sort-btn" data-sort="amount">
+                    낭플
+                    <span id="sort-indicator">⬍</span>
+                </div>
+                <div class="cell">원플원</div>
+                <div class="cell">공약</div>
+                <div class="cell">역팬</div>
+                <div class="cell">비고</div>
+                <div class="cell action-cell"></div>
+            </div>
 
-            <div class="cell action-cell">
-                <div class="action-buttons">
-                    <button class="add">+</button>
-                    <button class="del">🗑</button>
+            <!-- 샘플 1줄 (이걸 복사해서 엑셀 내용 옮겨적으면 됨) -->
+            <div class="row data-row">
+                <div class="cell" contenteditable="true">dkls2233</div>
+                <div class="cell" contenteditable="true">[C9]짤애</div>
+                <div class="cell amount-cell" contenteditable="true">210902</div>
+                <div class="cell" contenteditable="true">1</div>
+                <div class="cell" contenteditable="true">정성발씰 + 역팬 3% or 베럭 50만원 + 방송소년원 + 씰더</div>
+                <div class="cell ygp-cell" contenteditable="false"></div>
+                <div class="cell" contenteditable="true"></div>
+
+                <div class="cell action-cell">
+                    <div class="action-buttons">
+                        <button class="add">+</button>
+                        <button class="del">🗑</button>
+                    </div>
                 </div>
             </div>
-        </div>
 
+            <!-- 필요하면 위 data-row를 복붙해서 계속 추가 -->
+
+            <!-- 합계 행 -->
+            <div class="row summary-row">
+                <div class="cell">합계</div>
+                <div class="cell"></div>
+                <div class="cell summary-amount"></div>
+                <div class="cell"></div>
+                <div class="cell"></div>
+                <div class="cell summary-ygp"></div>
+                <div class="cell"></div>
+                <div class="cell action-cell"></div>
+            </div>
+
+        </div>
     </div>
-</div>
 
 </div>
 
 <script>
-
 /* ===========================
    1) 색상 & 역팬 계산
 =========================== */
@@ -199,15 +260,36 @@ function applyRowStyle(row){
     else if(num<=49999) lv="--lv6";
     else if(num<=99999) lv="--lv7";
     else if(num<=299999) lv="--lv8";
-    else lv="--lv9";
+    else if(num>=300000) lv="--lv9";
 
     row.style.background = `var(${lv})`;
 }
 
-function refreshAll(){
-    document.querySelectorAll(".data-row").forEach(applyRowStyle);
+/* 합계 갱신 */
+function updateSummary(){
+    const sumAmountCell = document.querySelector(".summary-amount");
+    const sumYgpCell    = document.querySelector(".summary-ygp");
+    if(!sumAmountCell || !sumYgpCell) return;
+
+    let sumAmount = 0;
+    let sumYgp    = 0;
+
+    document.querySelectorAll(".data-row").forEach(row=>{
+        const a = parseInt(row.querySelector(".amount-cell").innerText.replace(/[^0-9]/g,'')) || 0;
+        const y = parseInt(row.querySelector(".ygp-cell").innerText.replace(/[^0-9]/g,'')) || 0;
+        sumAmount += a;
+        sumYgp    += y;
+    });
+
+    sumAmountCell.innerText = sumAmount || "";
+    sumYgpCell.innerText    = sumYgp || "";
 }
 
+/* 전체 스타일 갱신 */
+function refreshAll(){
+    document.querySelectorAll(".data-row").forEach(applyRowStyle);
+    updateSummary();
+}
 
 /* ===========================
    2) 열 너비 동기화
@@ -221,6 +303,7 @@ function syncColumnWidths(){
 
     rows.forEach(row=>{
         [...row.children].forEach((cell,i)=>{
+            // summary-row도 포함해서 가장 넓은 값 기준
             widths[i] = Math.max(widths[i], cell.scrollWidth);
         });
     });
@@ -232,20 +315,26 @@ function syncColumnWidths(){
     });
 }
 
-
 /* ===========================
    3) 행 클릭 → 버튼 표시
 =========================== */
 document.addEventListener("click", (e)=>{
-    const row = e.target.closest(".data-row");
+    const clickedRow = e.target.closest(".data-row");
 
     document.querySelectorAll(".data-row").forEach(r=>r.classList.remove("show-actions"));
+    if(clickedRow){
+        clickedRow.classList.add("show-actions");
+    }
 
-    if(row){
-        row.classList.add("show-actions");
+    // 배경 클릭 시 키보드 닫기
+    const isCell = e.target.closest(".cell");
+    if (!isCell) {
+        const active = document.activeElement;
+        if (active && active.classList.contains("cell")) {
+            active.blur();
+        }
     }
 });
-
 
 /* ===========================
    4) 행 추가 / 삭제
@@ -253,8 +342,12 @@ document.addEventListener("click", (e)=>{
 function addRow(after){
     const newRow = after.cloneNode(true);
 
+    // 데이터 초기화
     newRow.querySelectorAll(".cell").forEach(c=>{
-        if(!c.classList.contains("action-cell")){
+        if(!c.classList.contains("action-cell") && !c.classList.contains("ygp-cell")){
+            c.innerText = "";
+        }
+        if(c.classList.contains("ygp-cell")){
             c.innerText = "";
         }
     });
@@ -287,45 +380,61 @@ document.addEventListener("click", (e)=>{
     }
 });
 
-
 /* ===========================
-   5) 정렬 기능
+   5) 정렬 기능 (낭플)
 =========================== */
-let sortDir = 1; /* 1 = 오름 / -1 = 내림 */
+let sortDir = 1; // 1: 오름, -1: 내림
+const sortIndicator = document.getElementById("sort-indicator");
 
 document.querySelector(".sort-btn").addEventListener("click", ()=>{
     const rows = [...document.querySelectorAll(".data-row")];
     const table = document.getElementById("table");
 
     rows.sort((a,b)=>{
-        const A = parseInt(a.querySelector(".amount-cell").innerText.replace(/\D/g,"")) || 0;
-        const B = parseInt(b.querySelector(".amount-cell").innerText.replace(/\D/g,"")) || 0;
-        return (A-B) * sortDir;
+        const A = parseInt(a.querySelector(".amount-cell").innerText.replace(/[^0-9]/g,'')) || 0;
+        const B = parseInt(b.querySelector(".amount-cell").innerText.replace(/[^0-9]/g,'')) || 0;
+        return (A - B) * sortDir;
     });
 
-    sortDir *= -1; // 클릭할 때마다 방향 바뀜
-    rows.forEach(r=>table.appendChild(r));
+    sortDir *= -1;
+    sortIndicator.textContent = sortDir === 1 ? "⬆" : "⬇";
+
+    rows.forEach(r=>table.insertBefore(r, document.querySelector(".summary-row")));
 
     refreshAll();
     syncColumnWidths();
 });
 
+/* ===========================
+   6) 검색 (아이디 / 닉네임)
+=========================== */
+const searchInput = document.getElementById("search");
+searchInput.addEventListener("input", ()=>{
+    const q = searchInput.value.trim().toLowerCase();
+
+    document.querySelectorAll(".data-row").forEach(row=>{
+        const id   = row.children[0].innerText.toLowerCase();
+        const nick = row.children[1].innerText.toLowerCase();
+        const show = !q || id.includes(q) || nick.includes(q);
+        row.style.display = show ? "flex" : "none";
+    });
+
+    syncColumnWidths();
+});
 
 /* ===========================
-   6) 입력 변화 → 스타일 갱신
+   7) 입력 변화 → 스타일 갱신
 =========================== */
 document.addEventListener("input", ()=>{
     refreshAll();
     syncColumnWidths();
 });
 
-
 /* 초기 실행 */
 window.onload = ()=>{
     refreshAll();
     syncColumnWidths();
-}
-
+};
 </script>
 
 </body>
