@@ -12,8 +12,6 @@ body {
     justify-content: center;
     padding: 40px;
     color: #5b3b3b;
-    -webkit-user-select:none;
-    user-select:none;
 }
 
 .wrap {
@@ -21,15 +19,16 @@ body {
     max-width: 900px;
 }
 
+/* 제목 */
 h1 {
     text-align: center;
-    margin-bottom: 12px;
+    margin-bottom: 16px;
     color: #FF9DB5;
     font-weight: 800;
     font-size: 20px;
 }
 
-/* 테이블 */
+/* 표 전체 */
 .table {
     display: flex;
     flex-direction: column;
@@ -45,22 +44,20 @@ h1 {
     overflow: hidden;
 }
 
+/* 셀 */
 .cell {
-    padding: 6px;
+    padding: 6px 6px;
     font-size: 13px;
     border-right: 1px solid #ffd9eb;
     border-bottom: 1px solid #ffd9eb;
     text-align: center;
     outline: none;
-    contenteditable: true;
+    contenteditable: plaintext-only;
+    white-space: nowrap; /* 줄바꿈 금지 */
+    user-select:text;
 }
 
-.cell:last-child { border-right:0; }
-
-/* 선택된 행 강조 */
-.row.selected {
-    outline: 2px solid #ff8aba;
-}
+.cell:last-child { border-right: none; }
 
 /* 헤더 */
 .header .cell {
@@ -68,6 +65,12 @@ h1 {
     color: #D05B87;
     font-weight: 700;
     border-bottom: 2px solid #f5bad2;
+    contenteditable: false;
+}
+
+/* 선택 강조 */
+.row.selected {
+    outline: 2px solid #ff8aba;
 }
 
 /* 색상 팔레트 */
@@ -83,7 +86,7 @@ h1 {
     --lv9: #FFB2D0;
 }
 
-/* 팝업 메뉴 */
+/* 커스텀 메뉴 */
 .context-menu {
     position: absolute;
     background: white;
@@ -95,46 +98,37 @@ h1 {
     font-size: 14px;
     min-width: 140px;
 }
-
 .context-menu div {
     padding: 8px 10px;
     color: #d94872;
     text-align: center;
 }
-
 .context-menu div:hover {
     background: #ffe6f1;
     cursor: pointer;
-}
-
-/* 드래그 핸들 */
-.row {
-    cursor: grab;
-}
-.row:active {
-    cursor: grabbing;
 }
 </style>
 
 </head>
 <body>
 <div class="wrap">
+
     <h1>🐰 C9 1회차 낭플단</h1>
 
     <div class="table">
 
         <!-- 헤더 -->
         <div class="row header" data-nodrag="true">
-            <div class="cell" contenteditable="false">아이디</div>
-            <div class="cell" contenteditable="false">닉네임</div>
-            <div class="cell" contenteditable="false">갯수</div>
-            <div class="cell" contenteditable="false">원플원</div>
-            <div class="cell" contenteditable="false">공약</div>
-            <div class="cell" contenteditable="false">역팬</div>
-            <div class="cell" contenteditable="false">비고</div>
+            <div class="cell">아이디</div>
+            <div class="cell">닉네임</div>
+            <div class="cell">갯수</div>
+            <div class="cell">원플원</div>
+            <div class="cell">공약</div>
+            <div class="cell">역팬</div>
+            <div class="cell">비고</div>
         </div>
 
-        <!-- 샘플 -->
+        <!-- 예시 데이터 -->
         <div class="row" data-amount="30000">
             <div class="cell">danggun</div>
             <div class="cell">당군</div>
@@ -149,18 +143,39 @@ h1 {
 </div>
 
 <script>
+const COLS = 7;
 const isMobile = 'ontouchstart' in window;
 
-/* ==============================
-색상 + 역팬 계산 + 재적용
-============================== */
+/* ---------------------------------------------
+셀 개수 복구 (열 7개 유지)
+--------------------------------------------- */
+function normalizeCells(){
+    document.querySelectorAll(".row:not(.header)").forEach(row => {
+        let cells = row.querySelectorAll(".cell");
+        if(cells.length < COLS){
+            for(let i = cells.length; i < COLS; i++){
+                const c = document.createElement("div");
+                c.className = "cell";
+                c.setAttribute("contenteditable", "plaintext-only");
+                c.style.whiteSpace = "nowrap";
+                row.appendChild(c);
+            }
+        }
+    });
+}
+document.addEventListener("input", normalizeCells);
+
+
+/* ---------------------------------------------
+역팬 + 색상 처리
+--------------------------------------------- */
 function applyRowLogic() {
     document.querySelectorAll(".row:not(.header)").forEach(row => {
         const amount = Number(row.querySelectorAll(".cell")[2]?.innerText || 0);
         row.dataset.amount = amount;
 
         const fanCell = row.querySelector(".calc-ygp");
-        if (fanCell) fanCell.textContent = Math.round(amount * 0.03);
+        if(fanCell) fanCell.textContent = Math.round(amount * 0.03);
 
         let lv = "--lv1";
         if(amount >= 299 && amount <= 999) lv = "--lv2";
@@ -176,76 +191,82 @@ function applyRowLogic() {
     });
 }
 
-/* ==============================
-행 선택 (단일 / Shift 다중)
-============================== */
-let lastSelectedIndex = null;
+
+/* ---------------------------------------------
+행 선택 (Shift 다중 선택)
+--------------------------------------------- */
+let lastIndex = null;
 
 document.addEventListener("click", e => {
-    const row = e.target.closest(".row");
-    if (!row || row.classList.contains("header")) return;
+    const row = e.target.closest(".row:not(.header)");
+    if(!row) return;
 
     const rows = [...document.querySelectorAll(".row:not(.header)")];
     const index = rows.indexOf(row);
 
-    if (e.shiftKey && lastSelectedIndex !== null) {
-        rows.forEach(r => r.classList.remove("selected"));
-        const [start, end] = [lastSelectedIndex, index].sort((a,b)=>a-b);
-        for(let i=start;i<=end;i++) rows[i].classList.add("selected");
+    if(e.shiftKey && lastIndex !== null){
+        rows.forEach(r=>r.classList.remove("selected"));
+        const [s,e2] = [lastIndex,index].sort((a,b)=>a-b);
+        for(let i=s;i<=e2;i++) rows[i].classList.add("selected");
     } else {
-        rows.forEach(r => r.classList.remove("selected"));
+        rows.forEach(r=>r.classList.remove("selected"));
         row.classList.add("selected");
-        lastSelectedIndex = index;
+        lastIndex = index;
     }
 });
 
-/* ==============================
-우클릭 → 기본 메뉴 + 커스텀 메뉴 (옆으로 띄움)
-============================== */
+
+/* ---------------------------------------------
+PC: 우클릭 메뉴 (기본메뉴 + 옆에 커스텀)
+--------------------------------------------- */
 document.querySelectorAll(".row:not(.header)").forEach(row => {
     row.addEventListener("contextmenu", e => {
-        showContextMenu(e, row);
+        showContextMenu(e,row); // preventDefault 제거하여 기본메뉴 살림
     });
 });
 
-/* ==============================
-모바일 → 길게 터치
-============================== */
+
+/* ---------------------------------------------
+모바일: 롱프레스 메뉴
+--------------------------------------------- */
 document.querySelectorAll(".row:not(.header)").forEach(row => {
     let timer;
-    row.addEventListener("touchstart", (e) => {
-        timer = setTimeout(()=>showContextMenu(e, row), 500);
+    row.addEventListener("touchstart", e => {
+        timer = setTimeout(()=>showContextMenu(e,row),500);
     });
-    row.addEventListener("touchend", ()=> clearTimeout(timer));
+    row.addEventListener("touchend", ()=>clearTimeout(timer));
 });
 
-/* ==============================
+
+/* ---------------------------------------------
 컨텍스트 메뉴 생성
-============================== */
-function showContextMenu(event, row) {
+--------------------------------------------- */
+function showContextMenu(event, row){
     document.querySelectorAll(".context-menu").forEach(e=>e.remove());
+    window.selectedRow = row;
 
     const menu = document.createElement("div");
     menu.className = "context-menu";
 
-    const x = (event.clientX || event.touches?.[0].clientX) + 130; // C안 적용
+    const x = (event.clientX || event.touches?.[0].clientX) + 130;
     const y = (event.clientY || event.touches?.[0].clientY) - 10;
 
-    menu.style.left = x + "px";
-    menu.style.top = y + "px";
+    menu.style.left = x+"px";
+    menu.style.top = y+"px";
 
     menu.innerHTML = `
-        <div onclick="insertRow(row,'above')">▲ 위에 행 삽입</div>
-        <div onclick="insertRow(row,'below')">▼ 아래 행 삽입</div>
+        <div onclick="insertRow(selectedRow,'above')">▲ 위에 행 삽입</div>
+        <div onclick="insertRow(selectedRow,'below')">▼ 아래 행 삽입</div>
         <div onclick="deleteSelectedRows()">🗑 선택된 행 삭제</div>
     `;
 
     document.body.appendChild(menu);
 }
 
-/* ==============================
+
+/* ---------------------------------------------
 행 삽입
-============================== */
+--------------------------------------------- */
 function insertRow(baseRow, pos){
     const table = document.querySelector(".table");
     const newRow = document.createElement("div");
@@ -264,30 +285,64 @@ function insertRow(baseRow, pos){
     if(pos === "above") table.insertBefore(newRow, baseRow);
     else table.insertBefore(newRow, baseRow.nextSibling);
 
-    enableDrag();  
+    normalizeCells();
     applyRowLogic();
 }
 
-/* ==============================
-삭제 (다중 삭제)
-============================== */
+
+/* ---------------------------------------------
+행 삭제 (여러개 삭제 가능)
+--------------------------------------------- */
 function deleteSelectedRows(){
-    document.querySelectorAll(".row.selected").forEach(r => r.remove());
+    document.querySelectorAll(".row.selected").forEach(r=>r.remove());
     document.querySelectorAll(".context-menu").forEach(e=>e.remove());
-    applyRowLogic();
 }
 
-/* ==============================
-Ctrl + C / Ctrl + V 복사 & 붙여넣기
-============================== */
+
+/* ---------------------------------------------
+ 드래그 정렬 활성화 (핸들은 첫 번째 셀)
+--------------------------------------------- */
+function enableDrag(){
+    const rows = document.querySelectorAll(".row:not(.header)");
+
+    rows.forEach(row => {
+        const handle = row.children[0];
+        handle.draggable = true;
+
+        handle.addEventListener("dragstart", () => row.classList.add("dragging"));
+        handle.addEventListener("dragend", () => {
+            row.classList.remove("dragging");
+            applyRowLogic();
+        });
+    });
+
+    const table = document.querySelector(".table");
+    table.addEventListener("dragover", e => {
+        const dragging = document.querySelector(".dragging");
+        const rowsArr = [...table.querySelectorAll(".row:not(.header)")];
+        const after = rowsArr.find(r=>{
+            const rect = r.getBoundingClientRect();
+            return e.clientY < rect.top + rect.height/2;
+        });
+
+        if(after) table.insertBefore(dragging, after);
+        else table.appendChild(dragging);
+    });
+}
+enableDrag();
+
+
+/* ---------------------------------------------
+Ctrl+C / Ctrl+V 행 복사
+--------------------------------------------- */
 let copiedRows = [];
 
 document.addEventListener("keydown", e => {
     const rows = [...document.querySelectorAll(".row:not(.header)")];
-    const selected = rows.filter(r => r.classList.contains("selected"));
+    const selected = rows.filter(r=>r.classList.contains("selected"));
 
     if(e.ctrlKey && e.key === "c"){
-        copiedRows = selected.map(r => r.outerHTML);
+        copiedRows = selected.map(r=>r.outerHTML);
     }
 
     if(e.ctrlKey && e.key === "v" && copiedRows.length){
@@ -297,53 +352,18 @@ document.addEventListener("keydown", e => {
             div.innerHTML = html;
             table.appendChild(div.firstChild);
         });
-        enableDrag();
+        normalizeCells();
         applyRowLogic();
     }
 });
 
-/* ==============================
-드래그로 행 순서 변경
-============================== */
-function enableDrag(){
-    const rows = document.querySelectorAll(".row:not(.header)");
-    rows.forEach(row => {
-        row.draggable = true;
 
-        row.addEventListener("dragstart", e => {
-            row.classList.add("dragging");
-        });
-
-        row.addEventListener("dragend", e => {
-            row.classList.remove("dragging");
-            applyRowLogic();
-        });
-    });
-
-    const table = document.querySelector(".table");
-    table.addEventListener("dragover", e => {
-        const dragging = document.querySelector(".dragging");
-        const after = [...table.querySelectorAll(".row:not(.header)")].find(r => {
-            const rect = r.getBoundingClientRect();
-            return e.clientY < rect.top + rect.height / 2;
-        });
-        if(after) table.insertBefore(dragging, after);
-        else table.appendChild(dragging);
-    });
-}
-enableDrag();
-
-/* ==============================
-금액 기준 자동 정렬 (내림차순)
-============================== */
-function sortByAmount(){
-    const rows = [...document.querySelectorAll(".row:not(.header)")];
-    rows.sort((a,b) => Number(b.dataset.amount) - Number(a.dataset.amount));
-    const table = document.querySelector(".table");
-    rows.forEach(r => table.appendChild(r));
-}
+/* ---------------------------------------------
+초기 실행
+--------------------------------------------- */
+normalizeCells();
 applyRowLogic();
-</script>
 
+</script>
 </body>
 </html>
