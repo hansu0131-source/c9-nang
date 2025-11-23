@@ -2,19 +2,20 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>🐰 C9 1회차 낭플단</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🐰 낭니 숙제표</title>
 
 <style>
 body {
-    background: #FFF7F1;
+    background: #FFF6FA;
     font-family: "Pretendard", system-ui, sans-serif;
     display: flex;
     justify-content: center;
     padding: 40px 16px;
-    color: #5b3b3b;
+    color: #4c2d3b;
 }
 
+/* 전체 컨테이너 */
 .wrap {
     width: 100%;
     max-width: 900px;
@@ -23,83 +24,83 @@ body {
 /* 제목 */
 h1 {
     text-align: center;
-    margin-bottom: 16px;
-    color: #FF9DB5;
+    color: #FF8FB2;
     font-weight: 800;
-    font-size: 20px;
+    margin-bottom: 20px;
+    font-size: 22px;
 }
 
-/* 테이블 */
+/* 표 컨테이너 */
 .table {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 10px; /* 행 사이 간격 */
 }
 
+/* 각 행 = 카드형 */
 .row {
     display: grid;
-    grid-template-columns: 1.1fr 1.2fr 1fr 1fr 1.4fr 1fr 1.4fr;
+    grid-template-columns: repeat(7, 1fr);
     background: white;
     border-radius: 14px;
+    padding: 8px 0;
     overflow: hidden;
+    box-shadow: 0 2px 6px rgba(255,150,180,0.15);
 }
 
+/* 셀 */
 .cell {
-    padding: 10px;
+    padding: 8px;
     text-align: center;
-    border-right: 1px solid #ffd9eb;
-    border-bottom: 1px solid #ffd9eb;
-    background: white;
     font-size: 14px;
-    outline: none;
-    contenteditable: true;
+    border-right: 1px solid #ffe1ef;
+    color: #513345;
 }
 
-/* 헤더 */
-.header .cell {
-    background: #FFE9F3;
-    color: #D05B87;
-    font-weight: 700;
-    contenteditable: false;
-}
-
+/* 마지막 셀 구분선 제거 */
 .cell:last-child {
     border-right: none;
 }
-</style>
 
+/* 헤더 스타일 */
+.header {
+    background: #FFE8F4;
+    font-weight: 700;
+    color: #D55382;
+    border-radius: 14px;
+}
+</style>
 </head>
 
 <body>
 <div class="wrap">
+    <h1>🐰 C9 1회차 낭플단</h1>
 
-<h1>🐰 C9 1회차 낭플단</h1>
+    <div class="table">
 
-<div class="table">
+        <!-- 헤더 -->
+        <div class="row header">
+            <div class="cell">아이디</div>
+            <div class="cell">닉네임</div>
+            <div class="cell">갯수</div>
+            <div class="cell">원플원</div>
+            <div class="cell">공약</div>
+            <div class="cell">역팬</div>
+            <div class="cell">비고</div>
+        </div>
 
-    <div class="row header">
-        <div class="cell">아이디</div>
-        <div class="cell">닉네임</div>
-        <div class="cell">갯수</div>
-        <div class="cell">원플원</div>
-        <div class="cell">공약</div>
-        <div class="cell">역팬</div>
-        <div class="cell">비고</div>
+        <!-- 예시 샘플 행 -->
+        <div class="row">
+            <div class="cell">danggun</div>
+            <div class="cell">당군</div>
+            <div class="cell">30000</div>
+            <div class="cell">1</div>
+            <div class="cell">출석</div>
+            <div class="cell">900</div>
+            <div class="cell">VIP</div>
+        </div>
+
     </div>
-
-    <div class="row">
-        <div class="cell">danggun</div>
-        <div class="cell">당군</div>
-        <div class="cell">30000</div>
-        <div class="cell">1</div>
-        <div class="cell">출석</div>
-        <div class="cell">900</div>
-        <div class="cell">VIP</div>
-    </div>
-
 </div>
-
-</div>
-
 </body>
 </html>
