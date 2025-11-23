@@ -7,17 +7,19 @@
 
 <style>
 body {
-    background: #FFF6FA;
-    font-family: "Pretendard", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    background: #FFF7FA;
+    font-family: "Pretendard", -apple-system, system-ui, sans-serif;
     display: flex;
     justify-content: center;
-    padding: 20px 16px;
     margin: 0;
+    padding: 20px 14px;
     color: #4c2d3b;
 }
+
+/* 메인 컨테이너 */
 .wrap {
     width: 100%;
-    margin: 0 auto;
+    max-width: 1080px;
 }
 
 /* 제목 */
@@ -25,140 +27,105 @@ h1 {
     text-align: center;
     font-size: 22px;
     font-weight: 800;
-    margin-bottom: 12px;
+    margin-bottom: 16px;
     color: #FF8FB2;
 }
 
-/* 스크롤 래퍼 */
-.table-scroll {
-    overflow-x: auto;
-    padding-bottom: 10px;
-}
-
-/* 테이블 */
+/* 테이블 래퍼 */
 .table {
     display: flex;
     flex-direction: column;
-    gap: 4px;
-    min-width: 820px;
+    gap: 6px; /* 행 간 간격 줄임 */
 }
 
-/* 행 */
+/* 개별 행 */
 .row {
     display: flex;
     background: white;
     border-radius: 20px;
+    padding: 4px 0; /* 🔥 높이 줄임 */
     overflow: hidden;
-    box-shadow: 0 1px 4px rgba(255,150,180,0.08);
-    padding: 2px 0;
+    box-shadow: 0 2px 6px rgba(255,140,170,0.12);
 }
 
 /* 셀 */
 .cell {
-    padding: 4px 8px;
+    flex: 1;
+    padding: 6px 8px; /* 높이 줄임 */
     font-size: 14px;
-    display: inline-flex;
+    text-align: center;
+    display: flex;
     align-items: center;
     justify-content: center;
-    text-align: center;
-    border-right: 1px solid #FFE1EF;
-    outline: none;
+    border-right: 1px solid #FFE4EF;
+    contenteditable: true;
     white-space: nowrap;
-    min-height: 34px;
 }
+
 .cell:last-child {
     border-right: none;
 }
 
 /* 헤더 */
 .header {
-    background: #FFEFF7;
-}
-.header .cell {
-    font-weight: 700;
-    color: #D04F7D;
-    border-bottom: 2px solid #F8C7DB;
-    cursor: default;
-    user-select: none;
+    background: #FFEFF6;
 }
 
-/* 색상 레벨 (더 연하게) */
+.header .cell {
+    font-weight: 700;
+    color: #CF4C77;
+    padding: 8px 8px;
+    contenteditable: false;
+}
+
+/* 연한 파스텔 색상 (UI Prepped) */
 :root {
     --lv0: #FFFFFF;
     --lv1: #FFF9FD;
     --lv2: #FFF3FA;
-    --lv3: #FFEAF4;
-    --lv4: #FFE2EF;
-    --lv5: #FFD9EB;
-    --lv6: #FFD1E7;
-    --lv7: #FFC8E3;
-    --lv8: #FFBFE0;
-    --lv9: #FFB5DB;
-}
-
-/* 행 버튼 UI */
-.action-cell {
-    width: 70px;
-    position: relative;
-    border-right: none;
-}
-
-.action-buttons {
-    display: none;
-    position: absolute;
-    right: 8px;
-    top: 50%;
-    transform: translateY(-50%);
-    gap: 4px;
-}
-
-.row.show-actions .action-buttons {
-    display: flex;
-}
-
-.action-buttons button {
-    background: #FFD8EA;
-    border: none;
-    border-radius: 999px;
-    padding: 3px 7px;
-    font-size: 11px;
-    cursor: pointer;
-    color: #D24E78;
-}
-
-/* 열 너비 조절 막대 */
-.resizer {
-    width: 6px;
-    cursor: col-resize;
-    background: transparent;
-    position: absolute;
-    right: 0;
-    top: 0;
-    bottom: 0;
-}
-.cell {
-    position: relative;
+    --lv3: #FFE9F4;
+    --lv4: #FFE0EF;
+    --lv5: #FFD7EB;
+    --lv6: #FFCEE7;
+    --lv7: #FFC6E3;
+    --lv8: #FFBEDF;
+    --lv9: #FFB6DA;
 }
 </style>
 </head>
 
 <body>
+
 <div class="wrap">
 
-<h1>🐰 C9 1회차 낭플단</h1>
+    <h1>🐰 C9 1회차 낭플단</h1>
 
-<div class="table-scroll">
-<div class="table" id="table">
+    <div class="table">
+        <!-- 헤더 -->
+        <div class="row header">
+            <div class="cell">아이디</div>
+            <div class="cell">닉네임</div>
+            <div class="cell">낭플</div>
+            <div class="cell">원플원</div>
+            <div class="cell">공약</div>
+            <div class="cell">역팬</div>
+            <div class="cell">비고</div>
+        </div>
 
-    <!-- 헤더 -->
-    <div class="row header">
-        <div class="cell">아이디<div class="resizer"></div></div>
-        <div class="cell">닉네임<div class="resizer"></div></div>
-        <div class="cell sort-btn" data-sort="amount">낭플<div class="resizer"></div></div>
-        <div class="cell">원플원<div class="resizer"></div></div>
-        <div class="cell">공약<div class="resizer"></div></div>
-        <div class="cell">역팬<div class="resizer"></div></div>
-        <div class="cell">비고<div class="resizer"></div></div>
-        <div class="cell action-cell"></div>
+        <!-- 샘플 행 (테스트용) -->
+        <div class="row">
+            <div class="cell">danggun</div>
+            <div class="cell">당군</div>
+            <div class="cell">30000</div>
+            <div class="cell">1</div>
+            <div class="cell">출석</div>
+            <div class="cell">900</div>
+            <div class="cell">VIP</div>
+        </div>
+
     </div>
 
+</div>
+
+</body>
+</html>
