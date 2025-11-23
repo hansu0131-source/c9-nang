@@ -11,17 +11,19 @@ body {
     font-family: "Pretendard", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
     display: flex;
     justify-content: center;
-    padding: 40px 16px;
+    padding: 20px 16px;
     color: #4c2d3b;
     margin: 0;
 }
 
+/* === 컨테이너: 900px 제한 제거 === */
 .wrap {
     width: 100%;
-    max-width: 900px;
+    margin: 0 auto;
+    overflow: visible;
 }
 
-/* 제목 */
+/* === 제목 === */
 h1 {
     text-align: center;
     font-size: 22px;
@@ -30,25 +32,27 @@ h1 {
     color: #FF8FB2;
 }
 
-/* 테이블 */
+/* === 테이블 === */
 .table {
     display: flex;
     flex-direction: column;
     gap: 10px;
 }
 
+/* === 행 (카드형 + 더 둥글게) === */
 .row {
     display: grid;
     grid-template-columns: repeat(7, minmax(min-content, max-content));
     background: white;
-    border-radius: 22px;
-    padding: 4px 0;
+    border-radius: 26px;   /* 더 둥글게 */
+    padding: 4px 0;        /* 세로 공간 축소 */
     overflow: visible;
     box-shadow: 0 2px 8px rgba(255,150,180,0.10);
 }
 
+/* === 셀 === */
 .cell {
-    padding: 6px 8px;
+    padding: 6px 10px;     /* 세로 간격 축소 */
     font-size: 14px;
 
     display: flex;
@@ -66,15 +70,15 @@ h1 {
     cursor: text;
 }
 
-/* 마지막 셀 구분선 제거 */
 .cell:last-child {
     border-right: none;
 }
 
-/* HEADER */
+/* === 헤더 === */
 .header {
     background: #FFE8F4;
 }
+
 .header .cell {
     font-weight: 700;
     color: #D55382;
@@ -83,17 +87,7 @@ h1 {
     cursor: default;
 }
 
-/* 헤더는 수정 불가 */
-.header .cell[contenteditable] {
-    pointer-events: none;
-}
-
-/* 포커스된 셀 표시 */
-.data .cell:focus {
-    background: #FFE6F6;
-}
-
-/* 모바일에서 살짝 축소 */
+/* 모바일 살짝 축소 */
 @media (max-width: 600px) {
     .wrap {
         transform: scale(0.95);
@@ -120,6 +114,7 @@ h1 {
         <div class="cell">비고</div>
     </div>
 
+    <!-- 샘플 데이터 -->
     <div class="row data">
         <div class="cell" contenteditable="true">danggun</div>
         <div class="cell" contenteditable="true">당군</div>
@@ -135,33 +130,17 @@ h1 {
 </div>
 
 <script>
-function resizeColumns() {
-    const rows = document.querySelectorAll(".row.data");
-    if (!rows.length) return;
 
-    const firstRow = rows[0];
-    const colCount = firstRow.children.length;
+/* === 배경을 누르면 키보드 닫히게 === */
+document.addEventListener("click", (e) => {
+    const isCell = e.target.closest(".cell");
+    if (!isCell) {
+        if (document.activeElement && document.activeElement.classList.contains("cell")) {
+            document.activeElement.blur();
+        }
+    }
+});
 
-    const maxWidths = Array(colCount).fill(0);
-
-    rows.forEach(row => {
-        [...row.children].forEach((cell, i) => {
-            const width = measureTextWidth(cell.innerText) + 40;
-            maxWidths[i] = Math.max(maxWidths[i], width);
-        });
-    });
-
-    const colWidths = maxWidths.map(w => `${w}px`).join(" ");
-    document.querySelectorAll(".row").forEach(row => {
-        row.style.gridTemplateColumns = colWidths;
-    });
-}
-
-/* 입력 시 즉시 다시 계산 */
-document.addEventListener("input", resizeColumns);
-
-/* 로딩 때 1회 계산 */
-window.onload = resizeColumns;
 </script>
 
 </body>
