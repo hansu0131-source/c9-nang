@@ -1,0 +1,11 @@
+
+body { font-family: Pretendard, sans-serif; background:#FFF6FA; margin:0; }
+header { display:flex; align-items:center; padding:10px; background:#FFE9F4; }
+.logo { height:40px; margin-right:20px; }
+.menu { display:flex; gap:12px; }
+.menu a { text-decoration:none; color:#D04F7D; font-weight:600; padding:6px 10px; }
+.dropdown { position:relative; }
+.dropbtn { background:#FFD7EB; border:none; padding:6px 10px; border-radius:6px; cursor:pointer; color:#C04270; font-weight:600; }
+.dropdown-content { display:none; position:absolute; top:32px; background:white; box-shadow:0 2px 6px rgba(0,0,0,0.1); border-radius:8px; min-width:160px; z-index:10; }
+.dropdown-content a { display:block; padding:8px 12px; color:#D04F7D; }
+.dropdown:hover .dropdown-content { display:block; }
