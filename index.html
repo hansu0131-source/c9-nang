@@ -1,137 +1,36 @@
-<style>
-    body {
-        margin: 0;
-        padding: 0;
-        background: #FFF6FA;
-        font-family: "Pretendard", -apple-system, BlinkMacSystemFont, sans-serif;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
 
-    /* 상단 고정 바 */
-    .top-bar {
-        width: 100%;
-        background: white;
-        padding: 12px 20px;
-        box-shadow: 0 2px 6px rgba(255,150,180,0.15);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        position: sticky;
-        top: 0;
-        z-index: 999;
-    }
-
-    /* 좌측 로고 작게 */
-    .top-logo {
-        height: 38px;
-    }
-
-    /* 메뉴 */
-    .menu {
-        display: flex;
-        align-items: center;
-        gap: 24px;
-        position: relative;
-    }
-
-    .menu-item {
-        font-size: 15px;
-        color: #D24E78;
-        font-weight: 600;
-        cursor: pointer;
-    }
-
-    /* 낭플단 → 드롭다운 */
-    .dropdown {
-        position: absolute;
-        top: 36px;
-        right: 0;
-        background: white;
-        padding: 8px 0;
-        border-radius: 12px;
-        box-shadow: 0 2px 10px rgba(255,150,180,0.25);
-        display: none;
-        min-width: 150px;
-    }
-
-    .dropdown a {
-        display: block;
-        padding: 8px 16px;
-        color: #C64B75;
-        text-decoration: none;
-        font-size: 14px;
-    }
-
-    .dropdown a:hover {
-        background: #FFF0F6;
-    }
-
-    .menu-item:hover + .dropdown,
-    .dropdown:hover {
-        display: block;
-    }
-
-    /* 중앙 로고 */
-    .logo-container {
-        margin-top: 50px;
-        display: flex;
-        justify-content: center;
-    }
-
-    .logo-frame {
-        background: white;
-        padding: 14px;
-        border-radius: 22px;
-        box-shadow: 0 4px 14px rgba(255,150,180,0.20);
-        border: 4px solid #fff;
-    }
-
-    .main-logo {
-        width: 90%;
-        max-width: 520px;
-        height: auto;
-    }
-
-    /* 메인 문구 */
-    .tagline {
-        margin-top: 16px;
-        font-size: 20px;
-        font-weight: 700;
-        color: #D24E78;
-        text-shadow: 0 1px 2px rgba(255,150,180,0.3);
-    }
-
-    /* 모바일 대응 */
-    @media (max-width: 480px) {
-        .main-logo { max-width: 360px; }
-        .logo-frame { padding: 10px; border-radius: 16px; }
-        .tagline { font-size: 18px; }
-        .top-logo { height: 32px; }
-    }
-</style>
-
-<!-- 상단 헤더 -->
-<div class="top-bar">
-    <img class="top-logo" src="/mnt/data/9C1B5837-843A-4D23-A405-AE5EC7C162F7.jpeg">
-
-    <div class="menu">
-        <div class="menu-item">HOME</div>
-
-        <div class="menu-item">낭플단</div>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>우 낭 예</title>
+<link rel="stylesheet" href="assets/css/main.css">
+<script defer src="assets/js/main.js"></script>
+</head>
+<body>
+<header>
+    <img src="assets/img/c9-logo.png" class="logo">
+    <nav class="menu">
+        <a href="index.html">홈</a>
         <div class="dropdown">
-            <a href="c9-1.html">C9 1회차 낭플단</a>
+            <button class="dropbtn">엑셀방송 ▼</button>
+            <div class="dropdown-content">
+                <a href="pages/c9-1.html">낭플단 1회</a>
+                <a href="pages/c9-1-homework.html">낭플단 1회 숙제</a>
+                <a href="pages/c9-2.html">낭플단 2회</a>
+                <a href="pages/c9-2-homework.html">낭플단 2회 숙제</a>
+            </div>
         </div>
-    </div>
+        <div class="dropdown">
+            <button class="dropbtn">개인방송 ▼</button>
+            <div class="dropdown-content">
+                <a href="pages/pb-homework.html">숙제</a>
+            </div>
+        </div>
+    </nav>
+</header>
+<div class="content">
+    <h1>우 낭 예</h1>
 </div>
-
-<!-- 중앙 로고 -->
-<div class="logo-container">
-    <div class="logo-frame">
-        <img class="main-logo" src="/mnt/data/9C1B5837-843A-4D23-A405-AE5EC7C162F7.jpeg">
-    </div>
-</div>
-
-<!-- 중앙 문구 -->
-<div class="tagline">우 낭 예</div>
+</body>
+</html>
