@@ -51,6 +51,7 @@ h1 {
 .nav-bar a:hover {
     background: #ffe9f4;
 }
+
 .table-scroll {
     overflow-x: auto;
     padding-bottom: 4px;
@@ -59,7 +60,7 @@ h1 {
     display: flex;
     flex-direction: column;
     gap: 4px;
-    min-width: 900px;
+    min-width: 1000px;
 }
 .row {
     display: flex;
@@ -68,11 +69,6 @@ h1 {
     overflow: hidden;
     box-shadow: 0 1px 4px rgba(255,150,180,0.08);
     padding: 2px 0;
-    transition: box-shadow 0.15s ease, transform 0.15s ease;
-}
-.data-row:hover {
-    box-shadow: 0 3px 8px rgba(255,150,180,0.15);
-    transform: translateY(-1px);
 }
 .cell {
     padding: 4px 8px;
@@ -82,10 +78,6 @@ h1 {
     align-items: center;
     text-align: center;
     border-right: 1px solid #FFE1EF;
-    outline: none;
-    cursor: text;
-    white-space: normal;
-    word-break: keep-all;
 }
 .cell:last-child {
     border-right: none;
@@ -97,8 +89,6 @@ h1 {
     font-weight: 700;
     color: #D04F7D;
     border-bottom: 2px solid #F8C7DB;
-    contenteditable: false;
-    cursor: default;
 }
 .summary-row {
     background: #FFF9FD;
@@ -106,19 +96,19 @@ h1 {
     color: #cc507a;
 }
 
-/* 열 너비 (숙제용) */
+/* 열 너비 */
 .row .cell:nth-child(1) { width: 130px; } /* 아이디 */
 .row .cell:nth-child(2) { width: 130px; } /* 닉네임 */
 .row .cell:nth-child(3) { width: 120px; } /* 숙제 종류 */
-.row .cell:nth-child(4) { width: 90px; }  /* 역팬 3% */
-.row .cell:nth-child(5) { width: 70px; }  /* 사진 */
-.row .cell:nth-child(6) { width: 70px; }  /* 움짤 */
-.row .cell:nth-child(7) { width: 150px; } /* 비고 */
-.row .cell:nth-child(8) { width: 80px; }  /* 버튼 */
+.row .cell:nth-child(4) { width: 90px; }  /* 낭플 */
+.row .cell:nth-child(5) { width: 90px; }  /* 역팬 */
+.row .cell:nth-child(6) { width: 70px; }  /* 사진 */
+.row .cell:nth-child(7) { width: 70px; }  /* 움짤 */
+.row .cell:nth-child(8) { width: 150px;}  /* 비고 */
+.row .cell:nth-child(9) { width: 80px; }  /* 버튼 */
 
 .action-cell {
     position: relative;
-    border-right: none;
 }
 .action-buttons {
     display: none;
@@ -128,36 +118,8 @@ h1 {
     top: 50%;
     transform: translateY(-50%);
 }
-.action-buttons button {
-    background: #FFD8EA;
-    border: none;
-    border-radius: 999px;
-    padding: 3px 7px;
-    font-size: 11px;
-    cursor: pointer;
-    color: #D24E78;
-    transition: background 0.15s ease, transform 0.15s ease;
-}
-.action-buttons button:hover {
-    background: #ffbddc;
-    transform: translateY(-1px);
-}
 .row.show-actions .action-buttons {
     display: flex;
-}
-
-/* 색상 단계 */
-:root {
-    --lv0: #FFFFFF;
-    --lv1: #FFF9FD;
-    --lv2: #FFF3FA;
-    --lv3: #FFE9F4;
-    --lv4: #FFE0EF;
-    --lv5: #FFD7EB;
-    --lv6: #FFCEE7;
-    --lv7: #FFC6E3;
-    --lv8: #FFBEDF;
-    --lv9: #FFB6DA;
 }
 </style>
 </head>
@@ -165,336 +127,668 @@ h1 {
 <body>
 <div class="wrap">
 
-    <h1>🐰 C9 1회차 숙제 체크</h1>
-    <p class="sub-title">정성방셀 = 4 / 4 · 방셀 = 2 / 1 · 고정사진방셀 = 1+ / 0</p>
+<h1>🐰 C9 1회차 숙제 체크</h1>
+<p class="sub-title">정성방셀 = 4/4 · 방셀 = 2/1 · 고정사진방셀 = 1+/0</p>
 
-    <div class="nav-bar">
-        <a href="index.html">← 홈으로</a>
-        <a href="c9-1.html">← C9 1회차 낭플단</a>
-    </div>
+<div class="nav-bar">
+    <a href="index.html">← 홈으로</a>
+    <a href="c9-1.html">← C9 1회차 낭플단</a>
+</div>
 
-    <div class="table-scroll">
-        <div class="table" id="table">
+<div class="table-scroll">
+<div class="table" id="table">
 
-            <!-- 헤더 -->
-            <div class="row header">
-                <div class="cell">아이디</div>
-                <div class="cell">닉네임</div>
-                <div class="cell">숙제 종류</div>
-                <div class="cell">역팬 (3%)</div>
-                <div class="cell">사진</div>
-                <div class="cell">움짤</div>
-                <div class="cell">비고</div>
-                <div class="cell action-cell"></div>
-            </div>
-                        <!-- ===== DATA ROWS ===== -->
+<!-- 헤더 -->
+<div class="row header">
+    <div class="cell">아이디</div>
+    <div class="cell">닉네임</div>
+    <div class="cell">숙제 종류</div>
+    <div class="cell">낭플</div>
+    <div class="cell">역팬(3%)</div>
+    <div class="cell">사진</div>
+    <div class="cell">움짤</div>
+    <div class="cell">비고</div>
+    <div class="cell action-cell"></div>
+</div>
 
-            <div class="row data-row" data-amount="210092">
-                <div class="cell" contenteditable="true">dksl2233</div>
-                <div class="cell" contenteditable="true">[C9]잘해</div>
-                <div class="cell" contenteditable="true">정성방셀</div>
-                <div class="cell yeok-cell"></div>
-                <div class="cell" contenteditable="true">4</div>
-                <div class="cell" contenteditable="true">4</div>
-                <div class="cell" contenteditable="true"></div>
-                <div class="cell action-cell">
-                    <div class="action-buttons">
-                        <button class="add">+</button><button class="del">🗑</button>
-                    </div>
-                </div>
-            </div>
+<!-- ====== 기존 C9 1회 데이터 ====== -->
 
-            <div class="row data-row" data-amount="50000">
-                <div class="cell" contenteditable="true">fox11241</div>
-                <div class="cell" contenteditable="true">#woorinangni</div>
-                <div class="cell" contenteditable="true">정성방셀</div>
-                <div class="cell yeok-cell"></div>
-                <div class="cell" contenteditable="true">4</div>
-                <div class="cell" contenteditable="true">4</div>
-                <div class="cell" contenteditable="true"></div>
-                <div class="cell action-cell">
-                    <div class="action-buttons">
-                        <button class="add">+</button><button class="del">🗑</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="row data-row" data-amount="15151">
-                <div class="cell" contenteditable="true">hantong113</div>
-                <div class="cell" contenteditable="true">예수형2↑</div>
-                <div class="cell" contenteditable="true">정성방셀</div>
-                <div class="cell yeok-cell"></div>
-                <div class="cell" contenteditable="true">4</div>
-                <div class="cell" contenteditable="true">4</div>
-                <div class="cell" contenteditable="true"></div>
-                <div class="cell action-cell">
-                    <div class="action-buttons">
-                        <button class="add">+</button><button class="del">🗑</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="row data-row" data-amount="12790">
-                <div class="cell" contenteditable="true">knifehoo</div>
-                <div class="cell" contenteditable="true">김배터</div>
-                <div class="cell" contenteditable="true">정성방셀</div>
-                <div class="cell yeok-cell"></div>
-                <div class="cell" contenteditable="true">4</div>
-                <div class="cell" contenteditable="true">4</div>
-                <div class="cell" contenteditable="true"></div>
-                <div class="cell action-cell">
-                    <div class="action-buttons">
-                        <button class="add">+</button><button class="del">🗑</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="row data-row" data-amount="12442">
-                <div class="cell" contenteditable="true">airess16</div>
-                <div class="cell" contenteditable="true">옴브리뉴팬</div>
-                <div class="cell" contenteditable="true">정성방셀</div>
-                <div class="cell yeok-cell"></div>
-                <div class="cell" contenteditable="true">4</div>
-                <div class="cell" contenteditable="true">4</div>
-                <div class="cell" contenteditable="true"></div>
-                <div class="cell action-cell">
-                    <div class="action-buttons">
-                        <button class="add">+</button><button class="del">🗑</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="row data-row" data-amount="11574">
-                <div class="cell" contenteditable="true">wjddudtjr777</div>
-                <div class="cell" contenteditable="true">낭무새</div>
-                <div class="cell" contenteditable="true">정성방셀</div>
-                <div class="cell yeok-cell"></div>
-                <div class="cell" contenteditable="true">4</div>
-                <div class="cell" contenteditable="true">4</div>
-                <div class="cell" contenteditable="true"></div>
-                <div class="cell action-cell">
-                    <div class="action-buttons">
-                        <button class="add">+</button><button class="del">🗑</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="row data-row" data-amount="11473">
-                <div class="cell" contenteditable="true">kokoko2151</div>
-                <div class="cell" contenteditable="true">로넌</div>
-                <div class="cell" contenteditable="true">정성방셀</div>
-                <div class="cell yeok-cell"></div>
-                <div class="cell" contenteditable="true">4</div>
-                <div class="cell" contenteditable="true">4</div>
-                <div class="cell" contenteditable="true"></div>
-                <div class="cell action-cell">
-                    <div class="action-buttons">
-                        <button class="add">+</button><button class="del">🗑</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 방셀 -->
-            <div class="row data-row" data-amount="9295">
-                <div class="cell">jounguk892</div>
-                <div class="cell">꽂을때희열</div>
-                <div class="cell">방셀</div>
-                <div class="cell yeok-cell"></div>
-                <div class="cell">2</div>
-                <div class="cell">1</div>
-                <div class="cell" contenteditable="true"></div>
-                <div class="cell action-cell">
-                    <div class="action-buttons"><button class="add">+</button><button class="del">🗑</button></div>
-                </div>
-            </div>
-
-            <div class="row data-row" data-amount="5734">
-                <div class="cell">zxczsd235</div>
-                <div class="cell">울쎄라형2↑</div>
-                <div class="cell">방셀</div>
-                <div class="cell yeok-cell"></div>
-                <div class="cell">2</div>
-                <div class="cell">1</div>
-                <div class="cell" contenteditable="true"></div>
-                <div class="cell action-cell">
-                    <div class="action-buttons"><button class="add">+</button><button class="del">🗑</button></div>
-                </div>
-            </div>
-
-            <div class="row data-row" data-amount="5289">
-                <div class="cell">malguman</div>
-                <div class="cell">도맑음</div>
-                <div class="cell">방셀</div>
-                <div class="cell yeok-cell"></div>
-                <div class="cell">2</div>
-                <div class="cell">1</div>
-                <div class="cell" contenteditable="true"></div>
-                <div class="cell action-cell">
-                    <div class="action-buttons"><button class="add">+</button><button class="del">🗑</button></div>
-                </div>
-            </div>
-
-            <div class="row data-row" data-amount="5146">
-                <div class="cell">pretty5869</div>
-                <div class="cell">이쁘면깅예솔</div>
-                <div class="cell">방셀</div>
-                <div class="cell yeok-cell"></div>
-                <div class="cell">2</div>
-                <div class="cell">1</div>
-                <div class="cell" contenteditable="true"></div>
-                <div class="cell action-cell">
-                    <div class="action-buttons"><button class="add">+</button><button class="del">🗑</button></div>
-                </div>
-            </div>
-
-            <div class="row data-row" data-amount="5000">
-                <div class="cell">noble275</div>
-                <div class="cell">꼬라지하고는</div>
-                <div class="cell">방셀</div>
-                <div class="cell yeok-cell"></div>
-                <div class="cell">2</div>
-                <div class="cell">1</div>
-                <div class="cell" contenteditable="true"></div>
-                <div class="cell action-cell">
-                    <div class="action-buttons"><button class="add">+</button><button class="del">🗑</button></div>
-                </div>
-            </div>
-
-            <!-- 고정 사진 방셀 -->
-            <div class="row data-row" data-amount="2400">
-                <div class="cell">22noka</div>
-                <div class="cell">대출갚는더덕</div>
-                <div class="cell">고정 사진 방셀</div>
-                <div class="cell yeok-cell"></div>
-                <div class="cell">1+</div>
-                <div class="cell">0</div>
-                <div class="cell" contenteditable="true"></div>
-                <div class="cell action-cell">
-                    <div class="action-buttons"><button class="add">+</button><button class="del">🗑</button></div>
-                </div>
-            </div>
-
-            <div class="row data-row" data-amount="2044">
-                <div class="cell">tjd01084</div>
-                <div class="cell">낭겨울♥</div>
-                <div class="cell">고정 사진 방셀</div>
-                <div class="cell yeok-cell"></div>
-                <div class="cell">1+</div>
-                <div class="cell">0</div>
-                <div class="cell" contenteditable="true"></div>
-                <div class="cell action-cell">
-                    <div class="action-buttons"><button class="add">+</button><button class="del">🗑</button></div>
-                </div>
-            </div>
-
-            <div class="row data-row" data-amount="1572">
-                <div class="cell">kegsdop42</div>
-                <div class="cell">조블등장</div>
-                <div class="cell">고정 사진 방셀</div>
-                <div class="cell yeok-cell"></div>
-                <div class="cell">1+</div>
-                <div class="cell">0</div>
-                <div class="cell" contenteditable="true"></div>
-                <div class="cell action-cell">
-                    <div class="action-buttons"><button class="add">+</button><button class="del">🗑</button></div>
-                </div>
-            </div>
-
-            <div class="row data-row" data-amount="1329">
-                <div class="cell">nowtomorrow</div>
-                <div class="cell">초코톡핑</div>
-                <div class="cell">고정 사진 방셀</div>
-                <div class="cell yeok-cell"></div>
-                <div class="cell">1+</div>
-                <div class="cell">0</div>
-                <div class="cell" contenteditable="true"></div>
-                <div class="cell action-cell">
-                    <div class="action-buttons"><button class="add">+</button><button class="del">🗑</button></div>
-                </div>
-            </div>
-
-            <div class="row data-row" data-amount="1234">
-                <div class="cell">stevendan85</div>
-                <div class="cell">스티븐댄</div>
-                <div class="cell">고정 사진 방셀</div>
-                <div class="cell yeok-cell"></div>
-                <div class="cell">1+</div>
-                <div class="cell">0</div>
-                <div class="cell" contenteditable="true"></div>
-                <div class="cell action-cell">
-                    <div class="action-buttons"><button class="add">+</button><button class="del">🗑</button></div>
-                </div>
-            </div>
-
-            <div class="row data-row" data-amount="1233">
-                <div class="cell">gkeksty</div>
-                <div class="cell">사업자대출</div>
-                <div class="cell">고정 사진 방셀</div>
-                <div class="cell yeok-cell"></div>
-                <div class="cell">1+</div>
-                <div class="cell">0</div>
-                <div class="cell" contenteditable="true"></div>
-                <div class="cell action-cell">
-                    <div class="action-buttons"><button class="add">+</button><button class="del">🗑</button></div>
-                </div>
-            </div>
-
-            <!-- 합계 -->
-            <div class="row summary-row">
-                <div class="cell">합계</div>
-                <div class="cell"></div>
-                <div class="cell"></div>
-                <div class="cell summary-yeok"></div>
-                <div class="cell"></div>
-                <div class="cell"></div>
-                <div class="cell"></div>
-                <div class="cell"></div>
-            </div>
-
-        </div>
+<div class="row data-row" data-amount="210092">
+    <div class="cell" contenteditable="true">dksl2233</div>
+    <div class="cell" contenteditable="true">[C9]잘해</div>
+    <div class="cell" contenteditable="true">정성방셀</div>
+    <div class="cell amount-cell">210092</div>
+    <div class="cell yeok-cell"></div>
+    <div class="cell" contenteditable="true">4</div>
+    <div class="cell" contenteditable="true">4</div>
+    <div class="cell" contenteditable="true"></div>
+    <div class="cell action-cell"><div class="action-buttons">
+        <button class="add">+</button><button class="del">🗑</button></div>
     </div>
 </div>
 
-<script>
-// 역팬 3% 자동 계산
-function updateYeokfan() {
-    let total = 0;
-    document.querySelectorAll(".data-row").forEach(row => {
-        const amount = parseInt(row.getAttribute("data-amount") || "0", 10) || 0;
-        const yCell = row.querySelector(".yeok-cell");
-        const value = Math.floor(amount * 0.03);
+<div class="row data-row" data-amount="50000">
+    <div class="cell" contenteditable="true">fox11241</div>
+    <div class="cell" contenteditable="true">#woorinangni</div>
+    <div class="cell" contenteditable="true">정성방셀</div>
+    <div class="cell amount-cell">50000</div>
+    <div class="cell yeok-cell"></div>
+    <div class="cell" contenteditable="true">4</div>
+    <div class="cell" contenteditable="true">4</div>
+    <div class="cell" contenteditable="true"></div>
+    <div class="cell action-cell"><div class="action-buttons">
+        <button class="add">+</button><button class="del">🗑</button></div>
+    </div>
+</div>
 
-        if (yCell) {
-            yCell.textContent = value ? value.toLocaleString() : "";
+<div class="row data-row" data-amount="15151">
+    <div class="cell" contenteditable="true">hantong113</div>
+    <div class="cell" contenteditable="true">예수형2↑</div>
+    <div class="cell" contenteditable="true">정성방셀</div>
+    <div class="cell amount-cell">15151</div>
+    <div class="cell yeok-cell"></div>
+    <div class="cell" contenteditable="true">4</div>
+    <div class="cell" contenteditable="true">4</div>
+    <div class="cell" contenteditable="true"></div>
+    <div class="cell action-cell"><div class="action-buttons">
+        <button class="add">+</button><button class="del">🗑</button></div>
+    </div>
+</div>
+
+<div class="row data-row" data-amount="12790">
+    <div class="cell" contenteditable="true">knifehoo</div>
+    <div class="cell" contenteditable="true">김배터</div>
+    <div class="cell" contenteditable="true">정성방셀</div>
+    <div class="cell amount-cell">12790</div>
+    <div class="cell yeok-cell"></div>
+    <div class="cell" contenteditable="true">4</div>
+    <div class="cell" contenteditable="true">4</div>
+    <div class="cell" contenteditable="true"></div>
+    <div class="cell action-cell"><div class="action-buttons">
+        <button class="add">+</button><button class="del">🗑</button></div>
+    </div>
+</div>
+
+<div class="row data-row" data-amount="12442">
+    <div class="cell" contenteditable="true">airess16</div>
+    <div class="cell" contenteditable="true">옴브리뉴팬</div>
+    <div class="cell" contenteditable="true">정성방셀</div>
+    <div class="cell amount-cell">12442</div>
+    <div class="cell yeok-cell"></div>
+    <div class="cell" contenteditable="true">4</div>
+    <div class="cell" contenteditable="true">4</div>
+    <div class="cell" contenteditable="true"></div>
+    <div class="cell action-cell"><div class="action-buttons">
+        <button class="add">+</button><button class="del">🗑</button></div>
+    </div>
+</div>
+
+<div class="row data-row" data-amount="11574">
+    <div class="cell" contenteditable="true">wjddudtjr777</div>
+    <div class="cell" contenteditable="true">낭무새</div>
+    <div class="cell" contenteditable="true">정성방셀</div>
+    <div class="cell amount-cell">11574</div>
+    <div class="cell yeok-cell"></div>
+    <div class="cell" contenteditable="true">4</div>
+    <div class="cell" contenteditable="true">4</div>
+    <div class="cell" contenteditable="true"></div>
+    <div class="cell action-cell"><div class="action-buttons">
+        <button class="add">+</button><button class="del">🗑</button></div>
+    </div>
+</div>
+
+<div class="row data-row" data-amount="11473">
+    <div class="cell" contenteditable="true">kokoko2151</div>
+    <div class="cell" contenteditable="true">로넌</div>
+    <div class="cell" contenteditable="true">정성방셀</div>
+    <div class="cell amount-cell">11473</div>
+    <div class="cell yeok-cell"></div>
+    <div class="cell" contenteditable="true">4</div>
+    <div class="cell" contenteditable="true">4</div>
+    <div class="cell" contenteditable="true"></div>
+    <div class="cell action-cell"><div class="action-buttons">
+        <button class="add">+</button><button class="del">🗑</button></div>
+    </div>
+</div>
+
+<!-- ========= 방셀 ========= -->
+
+<div class="row data-row" data-amount="9295">
+    <div class="cell">jounguk892</div>
+    <div class="cell">꽂을때희열</div>
+    <div class="cell">방셀</div>
+    <div class="cell amount-cell">9295</div>
+    <div class="cell yeok-cell"></div>
+    <div class="cell">2</div>
+    <div class="cell">1</div>
+    <div class="cell" contenteditable="true"></div>
+    <div class="cell action-cell"><div class="action-buttons">
+        <button class="add">+</button><button class="del">🗑</button></div>
+    </div>
+</div>
+
+<div class="row data-row" data-amount="5734">
+    <div class="cell">zxczsd235</div>
+    <div class="cell">울쎄라형2↑</div>
+    <div class="cell">방셀</div>
+    <div class="cell amount-cell">5734</div>
+    <div class="cell yeok-cell"></div>
+    <div class="cell">2</div>
+    <div class="cell">1</div>
+    <div class="cell" contenteditable="true"></div>
+    <div class="cell action-cell"><div class="action-buttons">
+        <button class="add">+</button><button class="del">🗑</button></div>
+    </div>
+</div>
+
+<div class="row data-row" data-amount="5289">
+    <div class="cell">malguman</div>
+    <div class="cell">도맑음</div>
+    <div class="cell">방셀</div>
+    <div class="cell amount-cell">5289</div>
+    <div class="cell yeok-cell"></div>
+    <div class="cell">2</div>
+    <div class="cell">1</div>
+    <div class="cell" contenteditable="true"></div>
+    <div class="cell action-cell"><div class="action-buttons">
+        <button class="add">+</button><button class="del">🗑</button></div>
+    </div>
+</div>
+
+<div class="row data-row" data-amount="5146">
+    <div class="cell">pretty5869</div>
+    <div class="cell">이쁘면깅예솔</div>
+    <div class="cell">방셀</div>
+    <div class="cell amount-cell">5146</div>
+    <div class="cell yeok-cell"></div>
+    <div class="cell">2</div>
+    <div class="cell">1</div>
+    <div class="cell" contenteditable="true"></div>
+    <div class="cell action-cell"><div class="action-buttons">
+        <button class="add">+</button><button class="del">🗑</button></div>
+    </div>
+</div>
+
+<div class="row data-row" data-amount="5000">
+    <div class="cell">noble275</div>
+    <div class="cell">꼬라지하고는</div>
+    <div class="cell">방셀</div>
+    <div class="cell amount-cell">5000</div>
+    <div class="cell yeok-cell"></div>
+    <div class="cell">2</div>
+    <div class="cell">1</div>
+    <div class="cell" contenteditable="true"></div>
+    <div class="cell action-cell"><div class="action-buttons">
+        <button class="add">+</button><button class="del">🗑</button></div>
+    </div>
+</div>
+
+<!-- ========= 고정 사진 방셀 ========= -->
+
+<div class="row data-row" data-amount="2400">
+    <div class="cell">22noka</div>
+    <div class="cell">대출갚는더덕</div>
+    <div class="cell">고정 사진 방셀</div>
+    <div class="cell amount-cell">2400</div>
+    <div class="cell yeok-cell"></div>
+    <div class="cell">1+</div>
+    <div class="cell">0</div>
+    <div class="cell" contenteditable="true"></div>
+    <div class="cell action-cell"><div class="action-buttons">
+        <button class="add">+</button><button class="del">🗑</button></div>
+    </div>
+</div>
+
+<div class="row data-row" data-amount="2044">
+    <div class="cell">tjd01084</div>
+    <div class="cell">낭겨울♥</div>
+    <div class="cell">고정 사진 방셀</div>
+    <div class="cell amount-cell">2044</div>
+    <div class="cell yeok-cell"></div>
+    <div class="cell">1+</div>
+    <div class="cell">0</div>
+    <div class="cell" contenteditable="true"></div>
+    <div class="cell action-cell"><div class="action-buttons">
+        <button class="add">+</button><button class="del">🗑</button></div>
+    </div>
+</div>
+
+<div class="row data-row" data-amount="1572">
+    <div class="cell">kegsdop42</div>
+    <div class="cell">조블등장</div>
+    <div class="cell">고정 사진 방셀</div>
+    <div class="cell amount-cell">1572</div>
+    <div class="cell yeok-cell"></div>
+    <div class="cell">1+</div>
+    <div class="cell">0</div>
+    <div class="cell" contenteditable="true"></div>
+    <div class="cell action-cell"><div class="action-buttons">
+        <button class="add">+</button><button class="del">🗑</button></div>
+    </div>
+</div>
+
+<div class="row data-row" data-amount="1329">
+    <div class="cell">nowtomorrow</div>
+    <div class="cell">초코톡핑</div>
+    <div class="cell">고정 사진 방셀</div>
+    <div class="cell amount-cell">1329</div>
+    <div class="cell yeok-cell"></div>
+    <div class="cell">1+</div>
+    <div class="cell">0</div>
+    <div class="cell" contenteditable="true"></div>
+    <div class="cell action-cell"><div class="action-buttons">
+        <button class="add">+</button><button class="del">🗑</button></div>
+    </div>
+</div>
+
+<div class="row data-row" data-amount="1234">
+    <div class="cell">stevendan85</div>
+    <div class="cell">스티븐댄</div>
+    <div class="cell">고정 사진 방셀</div>
+    <div class="cell amount-cell">1234</div>
+    <div class="cell yeok-cell"></div>
+    <div class="cell">1+</div>
+    <div class="cell">0</div>
+    <div class="cell" contenteditable="true"></div>
+    <div class="cell action-cell"><div class="action-buttons">
+        <button class="add">+</button><button class="del">🗑</button></div>
+    </div>
+</div>
+
+<div class="row data-row" data-amount="1233">
+    <div class="cell">gkeksty</div>
+    <div class="cell">사업자대출</div>
+    <div class="cell">고정 사진 방셀</div>
+    <div class="cell amount-cell">1233</div>
+    <div class="cell yeok-cell"></div>
+    <div class="cell">1+</div>
+    <div class="cell">0</div>
+    <div class="cell" contenteditable="true"></div>
+    <div class="cell action-cell"><div class="action-buttons">
+        <button class="add">+</button><button class="del">🗑</button></div>
+    </div>
+</div>
+
+<!-- ========================================= -->
+<!--        📌 sang6111 ~ vdfntqa85 추가 데이터  -->
+<!-- ========================================= -->
+
+<div class="row data-row">
+    <div class="cell" contenteditable="true">sang6111</div>
+    <div class="cell" contenteditable="true">시골청년빵훈</div>
+    <div class="cell" contenteditable="true"></div>
+    <div class="cell amount-cell">499</div>
+    <div class="cell fan-cell"></div>
+    <div class="cell" contenteditable="true">14</div>
+    <div class="cell" contenteditable="true">14</div>
+    <div class="cell" contenteditable="true"></div>
+    <div class="cell action-cell"><div class="action-buttons">
+<button class="add">+</button><button class="del">🗑</button></div></div>
+</div>
+
+<div class="row data-row">
+    <div class="cell" contenteditable="true">begin0824</div>
+    <div class="cell" contenteditable="true">빙고쥬스</div>
+    <div class="cell" contenteditable="true"></div>
+    <div class="cell amount-cell">346</div>
+    <div class="cell fan-cell"></div>
+    <div class="cell" contenteditable="true">10</div>
+    <div class="cell" contenteditable="true">10</div>
+    <div class="cell" contenteditable="true"></div>
+    <div class="cell action-cell"><div class="action-buttons">
+<button class="add">+</button><button class="del">🗑</button></div></div>
+</div>
+
+<div class="row data-row">
+    <div class="cell" contenteditable="true">ksh5154</div>
+    <div class="cell" contenteditable="true">검은눈토끼</div>
+    <div class="cell" contenteditable="true"></div>
+    <div class="cell amount-cell">300</div>
+    <div class="cell fan-cell"></div>
+    <div class="cell" contenteditable="true">9</div>
+    <div class="cell" contenteditable="true">9</div>
+    <div class="cell" contenteditable="true"></div>
+    <div class="cell action-cell"><div class="action-buttons">
+<button class="add">+</button><button class="del">🗑</button></div></div>
+</div>
+
+<div class="row data-row">
+    <div class="cell" contenteditable="true">akxkrxkr</div>
+    <div class="cell" contenteditable="true">[C9]ooｖ</div>
+    <div class="cell" contenteditable="true"></div>
+    <div class="cell amount-cell">299</div>
+    <div class="cell fan-cell"></div>
+    <div class="cell" contenteditable="true">8</div>
+    <div class="cell" contenteditable="true">8</div>
+    <div class="cell" contenteditable="true"></div>
+    <div class="cell action-cell"><div class="action-buttons">
+<button class="add">+</button><button class="del">🗑</button></div></div>
+</div>
+
+<div class="row data-row">
+    <div class="cell" contenteditable="true">bhcbbq6974</div>
+    <div class="cell" contenteditable="true">수희김</div>
+    <div class="cell" contenteditable="true"></div>
+    <div class="cell amount-cell">200</div>
+    <div class="cell fan-cell"></div>
+    <div class="cell" contenteditable="true">6</div>
+    <div class="cell" contenteditable="true">6</div>
+    <div class="cell" contenteditable="true"></div>
+    <div class="cell action-cell"><div class="action-buttons">
+<button class="add">+</button><button class="del">🗑</button></div></div>
+</div>
+
+<div class="row data-row">
+    <div class="cell" contenteditable="true">krhtlgh123</div>
+    <div class="cell" contenteditable="true">골타369</div>
+    <div class="cell" contenteditable="true"></div>
+    <div class="cell amount-cell">200</div>
+    <div class="cell fan-cell"></div>
+    <div class="cell" contenteditable="true">6</div>
+    <div class="cell" contenteditable="true">6</div>
+    <div class="cell" contenteditable="true"></div>
+    <div class="cell action-cell"><div class="action-buttons">
+<button class="add">+</button><button class="del">🗑</button></div></div>
+</div>
+
+<div class="row data-row">
+    <div class="cell" contenteditable="true">kpcm800610</div>
+    <div class="cell" contenteditable="true">마이형2↑</div>
+    <div class="cell" contenteditable="true"></div>
+    <div class="cell amount-cell">109</div>
+    <div class="cell fan-cell"></div>
+    <div class="cell" contenteditable="true">3</div>
+    <div class="cell" contenteditable="true">3</div>
+    <div class="cell" contenteditable="true"></div>
+    <div class="cell action-cell"><div class="action-buttons">
+<button class="add">+</button><button class="del">🗑</button></div></div>
+</div>
+
+<div class="row data-row">
+    <div class="cell" contenteditable="true">dumbo0131</div>
+    <div class="cell" contenteditable="true">당군!</div>
+    <div class="cell" contenteditable="true"></div>
+    <div class="cell amount-cell">109</div>
+    <div class="cell fan-cell"></div>
+    <div class="cell" contenteditable="true">3</div>
+    <div class="cell" contenteditable="true">3</div>
+    <div class="cell" contenteditable="true"></div>
+    <div class="cell action-cell"><div class="action-buttons">
+<button class="add">+</button><button class="del">🗑</button></div></div>
+</div>
+
+<!-- ==== 낭플 100 아래 동일 패턴 ==== -->
+
+<div class="row data-row">
+    <div class="cell" contenteditable="true">mammaq</div>
+    <div class="cell" contenteditable="true">ΚΕΝΖΙ</div>
+    <div class="cell" contenteditable="true"></div>
+    <div class="cell amount-cell">100</div>
+    <div class="cell fan-cell"></div>
+    <div class="cell" contenteditable="true">3</div>
+    <div class="cell" contenteditable="true">3</div>
+    <div class="cell" contenteditable="true"></div>
+    <div class="cell action-cell"><div class="action-buttons">
+<button class="add">+</button><button class="del">🗑</button></div></div>
+</div>
+
+<div class="row data-row">
+    <div class="cell" contenteditable="true">milla0315</div>
+    <div class="cell" contenteditable="true">헤이즐♡</div>
+    <div class="cell" contenteditable="true"></div>
+    <div class="cell amount-cell">100</div>
+    <div class="cell fan-cell"></div>
+    <div class="cell" contenteditable="true">3</div>
+    <div class="cell" contenteditable="true">3</div>
+    <div class="cell" contenteditable="true"></div>
+    <div class="cell action-cell"><div class="action-buttons">
+<button class="add">+</button><button class="del">🗑</button></div></div>
+</div>
+
+<div class="row data-row">
+    <div class="cell" contenteditable="true">smsm4162</div>
+    <div class="cell" contenteditable="true">프로겜블러</div>
+    <div class="cell" contenteditable="true"></div>
+    <div class="cell amount-cell">100</div>
+    <div class="cell fan-cell"></div>
+    <div class="cell" contenteditable="true">3</div>
+    <div class="cell" contenteditable="true">3</div>
+    <div class="cell" contenteditable="true"></div>
+    <div class="cell action-cell"><div class="action-buttons">
+<button class="add">+</button><button class="del">🗑</button></div></div>
+</div>
+
+<div class="row data-row">
+    <div class="cell" contenteditable="true">hilase</div>
+    <div class="cell" contenteditable="true">출구형2↑</div>
+    <div class="cell" contenteditable="true"></div>
+    <div class="cell amount-cell">100</div>
+    <div class="cell fan-cell"></div>
+    <div class="cell" contenteditable="true">3</div>
+    <div class="cell" contenteditable="true">3</div>
+    <div class="cell" contenteditable="true"></div>
+    <div class="cell action-cell"><div class="action-buttons">
+<button class="add">+</button><button class="del">🗑</button></div></div>
+</div>
+
+<div class="row data-row">
+    <div class="cell" contenteditable="true">abss1003</div>
+    <div class="cell" contenteditable="true">잘먹는족구</div>
+    <div class="cell" contenteditable="true"></div>
+    <div class="cell amount-cell">100</div>
+    <div class="cell fan-cell"></div>
+    <div class="cell" contenteditable="true">3</div>
+    <div class="cell" contenteditable="true">3</div>
+    <div class="cell" contenteditable="true"></div>
+    <div class="cell action-cell"><div class="action-buttons">
+<button class="add">+</button><button class="del">🗑</button></div></div>
+</div>
+
+<div class="row data-row">
+    <div class="cell" contenteditable="true">poby4280</div>
+    <div class="cell" contenteditable="true">이희형</div>
+    <div class="cell" contenteditable="true"></div>
+    <div class="cell amount-cell">100</div>
+    <div class="cell fan-cell"></div>
+    <div class="cell" contenteditable="true">3</div>
+    <div class="cell" contenteditable="true">3</div>
+    <div class="cell" contenteditable="true"></div>
+    <div class="cell action-cell"><div class="action-buttons">
+<button class="add">+</button><button class="del">🗑</button></div></div>
+</div>
+
+<div class="row data-row">
+    <div class="cell" contenteditable="true">n6628220</div>
+    <div class="cell" contenteditable="true">어둠의보사단</div>
+    <div class="cell" contenteditable="true"></div>
+    <div class="cell amount-cell">100</div>
+    <div class="cell fan-cell"></div>
+    <div class="cell" contenteditable="true">3</div>
+    <div class="cell" contenteditable="true">3</div>
+    <div class="cell" contenteditable="true"></div>
+    <div class="cell action-cell"><div class="action-buttons">
+<button class="add">+</button><button class="del">🗑</button></div></div>
+</div>
+
+<div class="row data-row">
+    <div class="cell" contenteditable="true">aisaromi</div>
+    <div class="cell" contenteditable="true">씨구</div>
+    <div class="cell" contenteditable="true"></div>
+    <div class="cell amount-cell">100</div>
+    <div class="cell fan-cell"></div>
+    <div class="cell" contenteditable="true">3</div>
+    <div class="cell" contenteditable="true">3</div>
+    <div class="cell" contenteditable="true"></div>
+    <div class="cell action-cell"><div class="action-buttons">
+<button class="add">+</button><button class="del">🗑</button></div></div>
+</div>
+
+<div class="row data-row">
+    <div class="cell" contenteditable="true">kimjin7204</div>
+    <div class="cell" contenteditable="true">박화요요</div>
+    <div class="cell" contenteditable="true"></div>
+    <div class="cell amount-cell">100</div>
+    <div class="cell fan-cell"></div>
+    <div class="cell" contenteditable="true">3</div>
+    <div class="cell" contenteditable="true">3</div>
+    <div class="cell" contenteditable="true"></div>
+    <div class="cell action-cell"><div class="action-buttons">
+<button class="add">+</button><button class="del">🗑</button></div></div>
+</div>
+
+<div class="row data-row">
+    <div class="cell" contenteditable="true">kimsumgk77</div>
+    <div class="cell" contenteditable="true">무상도</div>
+    <div class="cell" contenteditable="true"></div>
+    <div class="cell amount-cell">100</div>
+    <div class="cell fan-cell"></div>
+    <div class="cell" contenteditable="true">3</div>
+    <div class="cell" contenteditable="true">3</div>
+    <div class="cell" contenteditable="true"></div>
+    <div class="cell action-cell"><div class="action-buttons">
+<button class="add">+</button><button class="del">🗑</button></div></div>
+</div>
+
+<div class="row data-row">
+    <div class="cell" contenteditable="true">nowfree1004</div>
+    <div class="cell" contenteditable="true">고구마에김치</div>
+    <div class="cell" contenteditable="true"></div>
+    <div class="cell amount-cell">100</div>
+    <div class="cell fan-cell"></div>
+    <div class="cell" contenteditable="true">3</div>
+    <div class="cell" contenteditable="true">3</div>
+    <div class="cell" contenteditable="true"></div>
+    <div class="cell action-cell"><div class="action-buttons">
+<button class="add">+</button><button class="del">🗑</button></div></div>
+</div>
+
+<div class="row data-row">
+    <div class="cell" contenteditable="true">slionics</div>
+    <div class="cell" contenteditable="true">☆패션☆</div>
+    <div class="cell" contenteditable="true"></div>
+    <div class="cell amount-cell">100</div>
+    <div class="cell fan-cell"></div>
+    <div class="cell" contenteditable="true">3</div>
+    <div class="cell" contenteditable="true">3</div>
+    <div class="cell" contenteditable="true"></div>
+    <div class="cell action-cell"><div class="action-buttons">
+<button class="add">+</button><button class="del">🗑</button></div></div>
+</div>
+
+<div class="row data-row">
+    <div class="cell" contenteditable="true">vdfntqa85</div>
+    <div class="cell" contenteditable="true">##38광땡</div>
+    <div class="cell" contenteditable="true"></div>
+    <div class="cell amount-cell">100</div>
+    <div class="cell fan-cell"></div>
+    <div class="cell" contenteditable="true">3</div>
+    <div class="cell" contenteditable="true">3</div>
+    <div class="cell" contenteditable="true"></div>
+    <div class="cell action-cell"><div class="action-buttons">
+<button class="add">+</button><button class="del">🗑</button></div></div>
+</div>
+<!-- ========================= -->
+<!--        📌 합계 행         -->
+<!-- ========================= -->
+<div class="row summary-row">
+    <div class="cell">합계</div>
+    <div class="cell"></div>
+    <div class="cell"></div>
+
+    <!-- 낭플 합계 -->
+    <div class="cell summary-nangpul"></div>
+
+    <!-- 역팬(3%) 합계 -->
+    <div class="cell summary-yeok"></div>
+
+    <!-- 사진 합계 -->
+    <div class="cell summary-photo"></div>
+
+    <!-- 움짤 합계 -->
+    <div class="cell summary-gif"></div>
+
+    <div class="cell"></div>
+</div>
+</div> <!-- table -->
+</div> <!-- scroll -->
+</div> <!-- wrap -->
+
+
+<!-- ========================= -->
+<!--     📌 자동 계산 JS       -->
+<!-- ========================= -->
+<script>
+function updateAll() {
+    let totalNangpul = 0;
+    let totalYeok = 0;
+    let totalPhoto = 0;
+    let totalGif = 0;
+
+    document.querySelectorAll(".data-row").forEach(row => {
+
+        /* ───────────────────────────────
+            1) 낭플 계산 (낭플 = amount-cell)
+        ───────────────────────────────*/
+        const amountCell = row.querySelector(".amount-cell");
+        let amount = 0;
+        if (amountCell) {
+            amount = parseInt(amountCell.textContent.replace(/[^0-9]/g, "")) || 0;
+            totalNangpul += amount;
         }
-        total += value;
+
+        /* ───────────────────────────────
+            2) 역팬 3% 계산
+        ───────────────────────────────*/
+        const yeokCell = row.querySelector(".yeok-cell");
+        const yeokValue = Math.floor(amount * 0.03);
+        if (yeokCell) yeokCell.textContent = yeokValue ? yeokValue.toLocaleString() : "";
+        totalYeok += yeokValue;
+
+        /* ───────────────────────────────
+            3) 사진 합계
+        ───────────────────────────────*/
+        const pCell = row.children[5];
+        let p = parseInt(pCell?.textContent.replace(/[^0-9]/g, "")) || 0;
+        totalPhoto += p;
+
+        /* ───────────────────────────────
+            4) 움짤 합계
+        ───────────────────────────────*/
+        const gCell = row.children[6];
+        let g = parseInt(gCell?.textContent.replace(/[^0-9]/g, "")) || 0;
+        totalGif += g;
     });
 
-    const s = document.querySelector(".summary-yeok");
-    if (s) s.textContent = total.toLocaleString();
+    /* 합계 행 업데이트 */
+    document.querySelector(".summary-nangpul").textContent = totalNangpul.toLocaleString();
+    document.querySelector(".summary-yeok").textContent = totalYeok.toLocaleString();
+    document.querySelector(".summary-photo").textContent = totalPhoto.toLocaleString();
+    document.querySelector(".summary-gif").textContent = totalGif.toLocaleString();
 }
 
-// 행 추가/삭제 기능
-function addRow(after){
+/* ───────────────────────────────
+    행 추가 / 삭제
+───────────────────────────────*/
+function addRow(after) {
     const newRow = after.cloneNode(true);
-    newRow.removeAttribute("data-amount");
 
     newRow.querySelectorAll(".cell").forEach(c=>{
         if(c.classList.contains("yeok-cell")) c.textContent = "";
+        else if (c.classList.contains("amount-cell")) c.textContent = "";
         else if (!c.classList.contains("action-cell")) c.textContent = "";
     });
 
     after.insertAdjacentElement("afterend", newRow);
-    updateYeokfan();
+    updateAll();
 }
 
-function deleteRow(row){
+function deleteRow(row) {
     if(document.querySelectorAll(".data-row").length <= 1){
         alert("마지막 행은 삭제 불가");
         return;
     }
     row.remove();
-    updateYeokfan();
+    updateAll();
 }
 
 document.addEventListener("click", (e)=>{
@@ -506,9 +800,9 @@ document.addEventListener("click", (e)=>{
     if(e.target.classList.contains("del")) deleteRow(row);
 });
 
-// 초기 계산 실행
-window.onload = updateYeokfan;
+window.onload = updateAll;
 </script>
 
 </body>
 </html>
+
