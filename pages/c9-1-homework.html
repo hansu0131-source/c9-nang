@@ -6,9 +6,16 @@
 <title>🐰 C9 1회차 숙제 체크</title>
 
 <style>
+@font-face {
+    font-family: 'OngleipKonkon';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2412-1@1.0/Ownglyph_corncorn-Rg.woff2') format('woff2');
+    font-weight: normal;
+    font-display: swap;
+}
+
 body {
     background: #FFF6FA;
-    font-family: "Pretendard", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    font-family: "OngleipKonkon", "Pretendard", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
     display: flex;
     justify-content: center;
     padding: 20px 16px;
@@ -748,91 +755,232 @@ h1 {
 <!-- ========================= -->
 <!--     📌 자동 계산 JS       -->
 <!-- ========================= -->
-<script>
-function updateAll() {
-    let totalNangpul = 0;
-    let totalYeok = 0;
-    let totalPhoto = 0;
-    let totalGif = 0;
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+import { getFirestore, collection, doc, getDocs, setDoc, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
+const firebaseConfig = {
+    apiKey: "AIzaSyDSwLkvSaFVEo8a8-KwURvxzcV_tt1BLnM",
+    authDomain: "c9nang.firebaseapp.com",
+    projectId: "c9nang",
+    storageBucket: "c9nang.firebasestorage.app",
+    messagingSenderId: "837147989788",
+    appId: "1:837147989788:web:03cd5ebd0162bf3a4e8cd9",
+    measurementId: "G-LTS2HVS3KG"
+};
+
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// Firestore collection for this page
+const COLLECTION_HOMEWORK = "pages_c9_1_homework";
+
+// ================== 기존 UI 로직 ==================
+
+function updateYeokfan() {
+    let total = 0;
     document.querySelectorAll(".data-row").forEach(row => {
-
-        /* ───────────────────────────────
-            1) 낭플 계산 (낭플 = amount-cell)
-        ───────────────────────────────*/
         const amountCell = row.querySelector(".amount-cell");
-        let amount = 0;
-        if (amountCell) {
-            amount = parseInt(amountCell.textContent.replace(/[^0-9]/g, "")) || 0;
-            totalNangpul += amount;
-        }
-
-        /* ───────────────────────────────
-            2) 역팬 3% 계산
-        ───────────────────────────────*/
         const yeokCell = row.querySelector(".yeok-cell");
-        const yeokValue = Math.floor(amount * 0.03);
-        if (yeokCell) yeokCell.textContent = yeokValue ? yeokValue.toLocaleString() : "";
-        totalYeok += yeokValue;
-
-        /* ───────────────────────────────
-            3) 사진 합계
-        ───────────────────────────────*/
-        const pCell = row.children[5];
-        let p = parseInt(pCell?.textContent.replace(/[^0-9]/g, "")) || 0;
-        totalPhoto += p;
-
-        /* ───────────────────────────────
-            4) 움짤 합계
-        ───────────────────────────────*/
-        const gCell = row.children[6];
-        let g = parseInt(gCell?.textContent.replace(/[^0-9]/g, "")) || 0;
-        totalGif += g;
+        const amount = parseInt(amountCell?.textContent.replace(/,/g, "") || "0", 10) || 0;
+        const value = Math.floor(amount * 0.03);
+        if (yeokCell) yeokCell.textContent = value ? value.toLocaleString() : "";
+        total += value;
     });
-
-    /* 합계 행 업데이트 */
-    document.querySelector(".summary-nangpul").textContent = totalNangpul.toLocaleString();
-    document.querySelector(".summary-yeok").textContent = totalYeok.toLocaleString();
-    document.querySelector(".summary-photo").textContent = totalPhoto.toLocaleString();
-    document.querySelector(".summary-gif").textContent = totalGif.toLocaleString();
+    const summary = document.querySelector(".summary-yeok");
+    if (summary) summary.textContent = total ? total.toLocaleString() : "";
 }
 
-/* ───────────────────────────────
-    행 추가 / 삭제
-───────────────────────────────*/
+function updatePhotoTotal() {
+    let total = 0;
+    document.querySelectorAll(".data-row").forEach(row => {
+        const cell = row.children[4];
+        if (!cell) return;
+        const v = parseInt(cell.textContent.replace(/\D/g, "") || "0", 10) || 0;
+        total += v;
+    });
+    const s = document.querySelector(".summary-photo");
+    if (s) s.textContent = total ? total.toLocaleString() : "";
+}
+
+function updateGifTotal() {
+    let total = 0;
+    document.querySelectorAll(".data-row").forEach(row => {
+        const cell = row.children[5];
+        if (!cell) return;
+        const v = parseInt(cell.textContent.replace(/\D/g, "") || "0", 10) || 0;
+        total += v;
+    });
+    const s = document.querySelector(".summary-gif");
+    if (s) s.textContent = total ? total.toLocaleString() : "";
+}
+
+function updateAll() {
+    updateYeokfan();
+    updatePhotoTotal();
+    updateGifTotal();
+}
+
 function addRow(after) {
     const newRow = after.cloneNode(true);
-
-    newRow.querySelectorAll(".cell").forEach(c=>{
-        if(c.classList.contains("yeok-cell")) c.textContent = "";
-        else if (c.classList.contains("amount-cell")) c.textContent = "";
+    newRow.querySelectorAll(".cell").forEach((c, idx) => {
+        if (c.classList.contains("yeok-cell")) c.textContent = "";
         else if (!c.classList.contains("action-cell")) c.textContent = "";
     });
-
     after.insertAdjacentElement("afterend", newRow);
     updateAll();
+    scheduleSave();
 }
 
 function deleteRow(row) {
-    if(document.querySelectorAll(".data-row").length <= 1){
+    if (document.querySelectorAll(".data-row").length <= 1) {
         alert("마지막 행은 삭제 불가");
         return;
     }
     row.remove();
     updateAll();
+    scheduleSave();
 }
 
-document.addEventListener("click", (e)=>{
+document.addEventListener("click", (e) => {
     const row = e.target.closest(".data-row");
-    document.querySelectorAll(".data-row").forEach(r=>r.classList.remove("show-actions"));
-    if(row) row.classList.add("show-actions");
+    document.querySelectorAll(".data-row").forEach(r => r.classList.remove("show-actions"));
+    if (row) row.classList.add("show-actions");
 
-    if(e.target.classList.contains("add")) addRow(row);
-    if(e.target.classList.contains("del")) deleteRow(row);
+    if (e.target.classList.contains("add")) addRow(row);
+    if (e.target.classList.contains("del")) deleteRow(row);
 });
 
-window.onload = updateAll;
+// ================== Firestore 연동 ==================
+
+let saveTimer = null;
+
+function rowToData(row) {
+    const cells = row.querySelectorAll(".cell");
+    if (cells.length < 8) return null;
+    const id = cells[0].textContent.trim();
+    if (!id) return null;
+
+    const nickname = cells[1].textContent.trim();
+    const homework = cells[2].textContent.trim();
+    const amountText = cells[3].textContent.replace(/,/g, "").trim();
+    const amount = parseInt(amountText || "0", 10) || 0;
+    const yeokText = cells[4].textContent.replace(/,/g, "").trim();
+    const yeokfan = parseInt(yeokText || "0", 10) || 0;
+    const photoText = cells[5].textContent.replace(/\D/g, "").trim();
+    const photo = parseInt(photoText || "0", 10) || 0;
+    const gifText = cells[6].textContent.replace(/\D/g, "").trim();
+    const gif = parseInt(gifText || "0", 10) || 0;
+    const memo = cells[7].textContent.trim();
+
+    return {
+        id,
+        nickname,
+        homework,
+        amount,
+        yeokfan,
+        photo,
+        gif,
+        memo
+    };
+}
+
+async function saveAllRowsToFirestore() {
+    const rows = Array.from(document.querySelectorAll(".data-row"));
+    const colRef = collection(db, COLLECTION_HOMEWORK);
+
+    for (const row of rows) {
+        const data = rowToData(row);
+        if (!data) continue;
+
+        const docRef = doc(colRef, data.id);
+        const payload = {
+            ...data,
+            updatedAt: serverTimestamp()
+        };
+
+        await setDoc(docRef, payload, { merge: true });
+
+        // 히스토리 남기기
+        const historyCol = collection(docRef, "history");
+        await addDoc(historyCol, {
+            ...data,
+            savedAt: serverTimestamp()
+        });
+    }
+    console.log("Firestore 저장 완료 (homework)");
+}
+
+function scheduleSave() {
+    if (saveTimer) clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => {
+        saveAllRowsToFirestore().catch(console.error);
+    }, 1500);
+}
+
+async function loadFromFirestore() {
+    try {
+        const colRef = collection(db, COLLECTION_HOMEWORK);
+        const snap = await getDocs(colRef);
+
+        if (snap.empty) {
+            // 저장된 데이터 없으면 기존 HTML 사용
+            updateAll();
+            return;
+        }
+
+        const table = document.getElementById("table");
+        if (!table) return;
+
+        // 기존 data-row 삭제
+        table.querySelectorAll(".data-row").forEach(r => r.remove());
+
+        snap.forEach(docSnap => {
+            const d = docSnap.data();
+            const row = document.createElement("div");
+            row.className = "row data-row";
+
+            row.innerHTML = `
+                <div class="cell" contenteditable="true">${d.id || ""}</div>
+                <div class="cell" contenteditable="true">${d.nickname || ""}</div>
+                <div class="cell" contenteditable="true">${d.homework || ""}</div>
+                <div class="cell amount-cell" contenteditable="true">${d.amount ?? ""}</div>
+                <div class="cell yeok-cell"></div>
+                <div class="cell" contenteditable="true">${d.photo ?? ""}</div>
+                <div class="cell" contenteditable="true">${d.gif ?? ""}</div>
+                <div class="cell" contenteditable="true">${d.memo || ""}</div>
+                <div class="cell action-cell">
+                    <div class="action-buttons">
+                        <button class="add">+</button><button class="del">🗑</button>
+                    </div>
+                </div>
+            `;
+
+            table.appendChild(row);
+        });
+
+        updateAll();
+    } catch (err) {
+        console.error("Firestore 불러오기 오류 (homework):", err);
+        updateAll();
+    }
+}
+
+// 입력 자동 저장
+document.addEventListener("input", (e) => {
+    if (e.target.closest(".data-row")) {
+        updateAll();
+        scheduleSave();
+    }
+});
+
+// 초기 실행
+window.addEventListener("load", () => {
+    loadFromFirestore();
+});
 </script>
+
 
 
 <script type="module">

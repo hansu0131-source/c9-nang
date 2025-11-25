@@ -6,9 +6,16 @@
 <title>🐰 C9 1회차 낭플단</title>
 
 <style>
+@font-face {
+    font-family: 'OngleipKonkon';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2412-1@1.0/Ownglyph_corncorn-Rg.woff2') format('woff2');
+    font-weight: normal;
+    font-display: swap;
+}
+
 body {
     background: #FFF6FA;
-    font-family: "Pretendard", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    font-family: "OngleipKonkon", "Pretendard", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
     display: flex;
     justify-content: center;
     padding: 20px 16px;
@@ -728,25 +735,41 @@ h1 {
 </div>
 </div>
 
-<script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+import { getFirestore, collection, doc, getDocs, setDoc, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
-/* 행 색상 */
+const firebaseConfig = {
+    apiKey: "AIzaSyDSwLkvSaFVEo8a8-KwURvxzcV_tt1BLnM",
+    authDomain: "c9nang.firebaseapp.com",
+    projectId: "c9nang",
+    storageBucket: "c9nang.firebasestorage.app",
+    messagingSenderId: "837147989788",
+    appId: "1:837147989788:web:03cd5ebd0162bf3a4e8cd9",
+    measurementId: "G-LTS2HVS3KG"
+};
+
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// 이 페이지용 Firestore 컬렉션
+const COLLECTION_MEMBERS = "pages_c9_1_members";
+
+
+/* 색상 레벨 계산 */
 function applyRowStyle(row){
     const amountCell = row.querySelector(".amount-cell");
     if(!amountCell) return;
-
     const num = parseInt(amountCell.innerText.replace(/[^0-9]/g,'')) || 0;
-
     let lv="--lv0";
-    if(num>=100 && num<=298) lv="--lv1";
-    else if(num<=999) lv="--lv2";
-    else if(num<=2999) lv="--lv3";
-    else if(num<=4999) lv="--lv4";
-    else if(num<=9999) lv="--lv5";
-    else if(num<=49999) lv="--lv6";
-    else if(num<=99999) lv="--lv7";
-    else if(num<=299999) lv="--lv8";
-    else if(num>=300000) lv="--lv9";
+    if(num>=100000 && num<150000) lv="--lv3";
+    else if(num>=150000 && num<200000) lv="--lv4";
+    else if(num>=200000 && num<250000) lv="--lv5";
+    else if(num>=250000 && num<300000) lv="--lv6";
+    else if(num>=300000 && num<400000) lv="--lv7";
+    else if(num>=400000 && num<500000) lv="--lv8";
+    else if(num>=500000) lv="--lv9";
 
     row.style.background = `var(${lv})`;
 }
@@ -758,7 +781,8 @@ function updateSummary(){
         const a = parseInt(row.querySelector(".amount-cell")?.innerText.replace(/[^0-9]/g,'') || "0");
         sumAmount += a;
     });
-    document.querySelector(".summary-amount").innerText = sumAmount;
+    const sumEl = document.querySelector(".summary-amount");
+    if (sumEl) sumEl.innerText = sumAmount.toLocaleString();
 }
 
 /* 전체 리프레시 */
@@ -767,53 +791,152 @@ function refreshAll(){
     updateSummary();
 }
 
-/* 버튼 표시 */
-document.addEventListener("click", (e)=>{
-    const clickedRow = e.target.closest(".data-row");
-    document.querySelectorAll(".data-row").forEach(r=>r.classList.remove("show-actions"));
-    if(clickedRow) clickedRow.classList.add("show-actions");
-});
-
-/* 행 추가/삭제 */
+/* 버튼 표시 및 행 추가/삭제 */
 function addRow(after){
     const newRow = after.cloneNode(true);
-    newRow.querySelectorAll(".cell").forEach(c=>{
-        if(!c.classList.contains("action-cell")) c.innerText="";
+    newRow.querySelectorAll(".cell").forEach((c, idx)=>{
+        if (!c.classList.contains("action-cell")) c.textContent = "";
     });
     after.insertAdjacentElement("afterend", newRow);
     refreshAll();
+    scheduleSave();
 }
 
 function deleteRow(row){
     if(document.querySelectorAll(".data-row").length <= 1){
-        alert("마지막 행은 삭제가 불가합니다.");
+        alert("마지막 행은 삭제 불가");
         return;
     }
     row.remove();
     refreshAll();
+    scheduleSave();
 }
 
-document.addEventListener("click", (e)=>{
-    if(e.target.classList.contains("add")) addRow(e.target.closest(".data-row"));
-    if(e.target.classList.contains("del")) deleteRow(e.target.closest(".data-row"));
+document.addEventListener("click",(e)=>{
+    const row = e.target.closest(".data-row");
+    document.querySelectorAll(".data-row").forEach(r=>r.classList.remove("show-actions"));
+    if(row) row.classList.add("show-actions");
+
+    if(e.target.classList.contains("add")) addRow(row);
+    if(e.target.classList.contains("del")) deleteRow(row);
 });
 
-/* 검색 */
-document.getElementById("search").addEventListener("input", e=>{
-    const q = e.target.value.toLowerCase();
-    document.querySelectorAll(".data-row").forEach(row=>{
-        const id = row.children[0].innerText.toLowerCase();
-        const nick = row.children[1].innerText.toLowerCase();
-        row.style.display = (!q || id.includes(q) || nick.includes(q)) ? "flex":"none";
-    });
+
+// ================== Firestore 연동 ==================
+
+let saveTimer = null;
+
+function rowToData(row) {
+    const cells = row.querySelectorAll(".cell");
+    if (cells.length < 5) return null;
+
+    const id = cells[0].textContent.trim();
+    if (!id) return null;
+
+    const nickname = cells[1].textContent.trim();
+    const amountText = cells[2].textContent.replace(/[^0-9]/g, "").trim();
+    const amount = parseInt(amountText || "0", 10) || 0;
+    const oneplusone = cells[3].textContent.trim();
+    const promise = cells[4].textContent.trim();
+
+    return {
+        id,
+        nickname,
+        amount,
+        oneplusone,
+        promise
+    };
+}
+
+async function saveAllRowsToFirestore() {
+    const rows = Array.from(document.querySelectorAll(".data-row"));
+    const colRef = collection(db, COLLECTION_MEMBERS);
+
+    for (const row of rows) {
+        const data = rowToData(row);
+        if (!data) continue;
+
+        const docRef = doc(colRef, data.id);
+        const payload = {
+            ...data,
+            updatedAt: serverTimestamp()
+        };
+
+        await setDoc(docRef, payload, { merge: true });
+
+        const historyCol = collection(docRef, "history");
+        await addDoc(historyCol, {
+            ...data,
+            savedAt: serverTimestamp()
+        });
+    }
+    console.log("Firestore 저장 완료 (members)");
+}
+
+function scheduleSave() {
+    if (saveTimer) clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => {
+        saveAllRowsToFirestore().catch(console.error);
+    }, 1500);
+}
+
+async function loadFromFirestore() {
+    try {
+        const colRef = collection(db, COLLECTION_MEMBERS);
+        const snap = await getDocs(colRef);
+
+        if (snap.empty) {
+            refreshAll();
+            return;
+        }
+
+        const table = document.getElementById("table");
+        if (!table) return;
+
+        table.querySelectorAll(".data-row").forEach(r => r.remove());
+
+        snap.forEach(docSnap => {
+            const d = docSnap.data();
+            const row = document.createElement("div");
+            row.className = "row data-row";
+
+            row.innerHTML = `
+                <div class="cell" contenteditable="true">${d.id || ""}</div>
+                <div class="cell" contenteditable="true">${d.nickname || ""}</div>
+                <div class="cell amount-cell" contenteditable="true">${d.amount ?? ""}</div>
+                <div class="cell" contenteditable="true">${d.oneplusone || ""}</div>
+                <div class="cell" contenteditable="true">${d.promise || ""}</div>
+                <div class="cell action-cell">
+                    <div class="action-buttons">
+                        <button class="add">+</button><button class="del">🗑</button>
+                    </div>
+                </div>
+            `;
+
+            table.appendChild(row);
+        });
+
+        refreshAll();
+    } catch (err) {
+        console.error("Firestore 불러오기 오류 (members):", err);
+        refreshAll();
+    }
+}
+
+// 입력 자동 저장
+document.addEventListener("input", (e) => {
+    if (e.target.closest(".data-row")) {
+        refreshAll();
+        scheduleSave();
+    }
 });
 
-/* 입력 시 갱신 */
-document.addEventListener("input", ()=> refreshAll());
-
-window.onload = refreshAll;
-
+// 초기 실행
+window.addEventListener("load", () => {
+    loadFromFirestore();
+});
 </script>
+
 
 
 <script type="module">
