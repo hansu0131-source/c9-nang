@@ -1,4 +1,11 @@
+@font-face {
+    font-family: 'OngleipKonkon';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2412-1@1.0/Ownglyph_corncorn-Rg.woff2') format('woff2');
+    font-weight: normal;
+    font-display: swap;
+}
 
+body {font-family: 'OngleipKonkon', sans-serif;}
 body { font-family: Pretendard, sans-serif; background:#FFF6FA; margin:0; }
 header { display:flex; align-items:center; padding:10px; background:#FFE9F4; }
 .logo { height:40px; margin-right:20px; }
